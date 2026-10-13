@@ -12,35 +12,18 @@
   /* Identity: a "device-diagnostics lab" look. The layout is left-aligned and editorial, with
      cool slate neutrals, a diagnostic-teal accent and a sparing status-amber. Display: Bricolage Grotesque;
      body: IBM Plex Sans; device/code terms: IBM Plex Mono. */
+  /* The site is always dark, whatever the visitor's system setting is. */
   :root {
-    --bg: #f5f7f9;
-    --surface: #ffffff;
-    --surface-2: #eceff4;
-    --fg: #18212e;
-    --muted: #596577;
-    --faint: #7f8b9c;
-    --border: #dce2ea;
-    --accent: #0d7b85;
-    --accent-ink: #0a5b63;
-    --amber: #b86912;
-    --ok: #2f8f5b;
+    --bg: #0d1218; --surface: #151c25; --surface-2: #1c2530; --fg: #e7ecf3;
+    --muted: #9fabbb; --faint: #808d9d; --border: #28323f; --accent: #3bb6c4;
+    --accent-ink: #7fd6df; --amber: #e7a23c; --ok: #58c487;
     --font-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
     --font-body: "IBM Plex Sans", system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
     --maxw: 1080px;
+    color-scheme: dark;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --bg: #0d1218; --surface: #151c25; --surface-2: #1c2530; --fg: #e7ecf3;
-      --muted: #9fabbb; --faint: #808d9d; --border: #28323f; --accent: #3bb6c4;
-      --accent-ink: #7fd6df; --amber: #e7a23c; --ok: #58c487; color-scheme: dark;
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #0d1218; --surface: #151c25; --surface-2: #1c2530; --fg: #e7ecf3;
-    --muted: #9fabbb; --faint: #808d9d; --border: #28323f; --accent: #3bb6c4;
-    --accent-ink: #7fd6df; --amber: #e7a23c; --ok: #58c487; color-scheme: dark;
-  }
+  html { background: #0d1218; }
 
   * { box-sizing: border-box; }
   body { background: var(--bg); color: var(--fg); font-family: var(--font-body);
@@ -148,6 +131,15 @@
   .bio-draft { color: var(--faint); border: 1px dashed var(--border); border-radius: 10px;
     padding: 18px 20px; font-size: .97rem; background: var(--surface); }
 
+  .repo-link { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .repo-link a, .hero-links .ghost { display: inline-flex; align-items: center; font-size: .86rem;
+    font-weight: 600; color: var(--accent-ink); border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 14px; background: var(--surface-2); }
+  .repo-link a:hover, .hero-links .ghost:hover { border-color: var(--accent); text-decoration: none; }
+  .hero-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+  .fix .n a { color: var(--fg); }
+  .fix .n a:hover { color: var(--accent-ink); }
+  .credit { margin: 0; font-size: .86rem; color: var(--muted); }
   footer { border-top: 1px solid var(--border); padding-block: 36px 60px; color: var(--muted);
     font-size: .88rem; }
   footer .wrap { display: flex; flex-direction: column; gap: 16px; }
@@ -203,6 +195,10 @@
         and edited on this GitHub Page to improve their Linux Distros as well! Together, we can defeat
         Microslop and make Android and Linux the master race of computing, office and school
         mutitasking and productivity, creative apps, and gaming! Thank you.</p>
+    </div>
+    <div class="hero-links">
+      <a class="playbtn" href="https://github.com/iamflying29-sketch/googlebook-projects" target="_blank" rel="noopener">All projects on GitHub</a>
+      <a class="ghost" href="https://github.com/iamflying29-sketch/googlebook-projects/blob/main/GETTING-STARTED.md" target="_blank" rel="noopener">Getting started guide</a>
     </div>
     <div class="specs">
       <span class="chip"><b>x86-64</b> Intel</span>
@@ -287,7 +283,9 @@
         </div>
         <p>Every project here started as a real problem on the Googlebook. Each one was traced
           to its root cause in the device's own code and logs and then solved with a fix that
-          keeps itself running.</p>
+          keeps itself running. Before you set up any project, read the
+          <a href="https://github.com/iamflying29-sketch/googlebook-projects/blob/main/GETTING-STARTED.md" target="_blank" rel="noopener">Getting
+          started guide</a>.</p>
       </div>
 
       <div class="grid">
@@ -346,6 +344,7 @@
                 unplugging the charger is always completely safe.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-sleep-guard" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -401,13 +400,14 @@
                 only the Linux Terminal and the app can compute it. After an update, the doctor
                 decompiles the new Shadow app, re-checks every assumption the helper relies on, and
                 switches any broken feature to a safe fallback until the check passes again. Before
-                release, the code went through three rounds of independent review, and a fuzz test
+                release, the code went through three rounds of independent review by AI code reviewers, and a fuzz test
                 ran one million gesture sequences with zero stuck keys or buttons. The final doctor
                 run passed all 25 checks.</p>
               <p>The real fix belongs in Shadow itself, which could keep the fractional scroll steps
                 or request absolute capture mode.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-shadow-trackpad-fix" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -462,6 +462,7 @@
                 Samsung update could undo them, and the app warns me if a different plugin version is installed.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-buds-le-link" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -519,6 +520,7 @@
                 and @googlemail.com accounts only.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-gmail-web-app-notifications" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -565,6 +567,7 @@
                 Gmail Go, as the card above explains.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-notification-keeper" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -601,6 +604,7 @@
                 prints the result, so I can see that it worked.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-battery-widget" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -647,6 +651,7 @@
                 integrity checks usually refuse to run.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-waydroid" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
@@ -685,6 +690,7 @@
                 block screen capture show a black screen.</p>
             </div>
           </div>
+          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-continue-on" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
       </div>
     </div>
@@ -701,7 +707,7 @@
           reference.</p>
       </div>
       <div class="fixes">
-        <div class="fix"><div class="n">Terminal "Keep Awake"</div>
+        <div class="fix"><div class="n"><a href="https://github.com/iamflying29-sketch/googlebook-projects/blob/main/smaller-fixes/terminal-keep-awake.md" target="_blank" rel="noopener">Terminal "Keep Awake"</a></div>
           <div class="d">I thought the Linux Terminal's Keep Awake setting was broken,
             because the screen still went to sleep while the Terminal was open. Decompiling the
             Terminal app showed that Keep Awake is not a screen setting at all. It holds a partial
@@ -713,7 +719,7 @@
             that closing the lid disables every wake lock, so Keep Awake cannot keep the virtual
             machine running while the lid is closed. The setting works as designed, and nothing
             needed to be fixed.</div></div>
-        <div class="fix"><div class="n">Terminal session protection (tmux)</div>
+        <div class="fix"><div class="n"><a href="https://github.com/iamflying29-sketch/googlebook-projects/tree/main/smaller-fixes/tmux-session-protection" target="_blank" rel="noopener">Terminal session protection (tmux)</a></div>
           <div class="d">Long jobs in the Linux Terminal, including Claude Code, were dying in the
             middle of their work. The Googlebook's logs showed why. About two minutes after the
             Terminal app went into the background, its connection to the Linux virtual machine
@@ -740,6 +746,8 @@
       <span>© 2026 Thomas Liviakis · Googlebook Projects</span>
       <span class="mono">Lenovo Googlebook 15 · GooglebookOS (Android 17)</span>
     </div>
+    <p class="credit">I built and documented these projects with the help of Claude Code, Anthropic's AI coding
+      assistant.</p>
     <p class="disclaimer">This is an independent, unofficial project. It is not affiliated with,
       endorsed by, or sponsored by Google. "Googlebook", "GooglebookOS", "Android", "Gmail" and related names
       belong to their respective owners, and are used only to describe what this software works

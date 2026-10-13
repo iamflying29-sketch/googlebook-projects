@@ -68,6 +68,10 @@ Terminal's "Keep Awake" setting really does and how I protect long-running Termi
 
 The source of the Googlebook Projects website is in the [docs/](docs/) folder.
 
+## Credits
+
+I built and documented these projects with the help of Claude Code, Anthropic's AI coding assistant.
+
 ## Disclaimer and license
 
 This is an independent, unofficial project. It is not affiliated with, endorsed by, or sponsored by Google, Lenovo
