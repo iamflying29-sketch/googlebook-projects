@@ -1,0 +1,24 @@
+# Build outputs
+build/
+*.apk
+*.idsig
+*.dex
+*.class
+
+# Keys and secrets
+*.jks
+*.keystore
+*.p12
+adbkey*
+*.pem
+*.pass
+
+# Logs, caches and environments
+*.log
+__pycache__/
+venv/
+.venv/
+
+# Editor and system files
+.DS_Store
+*.swp

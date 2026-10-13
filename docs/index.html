@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Googlebook Projects</title>
+<meta name="description" content="This site collects Thomas Liviakis's open-source fixes and apps for the Lenovo Googlebook 15.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+<style>
+  /* Identity: a "device-diagnostics lab" look. The layout is left-aligned and editorial, with
+     cool slate neutrals, a diagnostic-teal accent and a sparing status-amber. Display: Bricolage Grotesque;
+     body: IBM Plex Sans; device/code terms: IBM Plex Mono. */
+  :root {
+    --bg: #f5f7f9;
+    --surface: #ffffff;
+    --surface-2: #eceff4;
+    --fg: #18212e;
+    --muted: #596577;
+    --faint: #7f8b9c;
+    --border: #dce2ea;
+    --accent: #0d7b85;
+    --accent-ink: #0a5b63;
+    --amber: #b86912;
+    --ok: #2f8f5b;
+    --font-display: "Bricolage Grotesque", "Trebuchet MS", sans-serif;
+    --font-body: "IBM Plex Sans", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
+    --maxw: 1080px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d1218; --surface: #151c25; --surface-2: #1c2530; --fg: #e7ecf3;
+      --muted: #9fabbb; --faint: #808d9d; --border: #28323f; --accent: #3bb6c4;
+      --accent-ink: #7fd6df; --amber: #e7a23c; --ok: #58c487; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d1218; --surface: #151c25; --surface-2: #1c2530; --fg: #e7ecf3;
+    --muted: #9fabbb; --faint: #808d9d; --border: #28323f; --accent: #3bb6c4;
+    --accent-ink: #7fd6df; --amber: #e7a23c; --ok: #58c487; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: var(--font-body);
+    font-weight: 450; line-height: 1.6; margin: 0; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding-inline: 20px; }
+  a { color: var(--accent-ink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; line-height: 1.08;
+    letter-spacing: -0.015em; margin: 0; }
+  .mono { font-family: var(--font-mono); }
+  .eyebrow { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent-ink); font-weight: 500; }
+
+  /* ---------- top bar ---------- */
+  header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between;
+    padding-block: 12px; gap: 14px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display);
+    font-weight: 800; letter-spacing: -0.02em; font-size: 1.02rem; }
+  .led { width: 9px; height: 9px; border-radius: 50%; background: var(--ok);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 22%, transparent); flex: none; }
+  .bar nav { display: flex; gap: 20px; font-size: .9rem; }
+  .bar nav a { color: var(--muted); }
+  .bar nav a:hover { color: var(--fg); text-decoration: none; }
+  @media (max-width: 620px) { .bar nav { display: none; } }
+
+  /* ---------- hero ---------- */
+  .hero { padding-block: clamp(48px, 9vw, 92px) clamp(32px, 6vw, 56px); }
+  .hero h1 { font-size: clamp(2.3rem, 7vw, 4.1rem); font-weight: 800; max-width: 16ch; }
+  .hero .lede { font-size: clamp(1.05rem, 2.2vw, 1.3rem); color: var(--muted);
+    max-width: 60ch; margin-top: 22px; }
+  .hero .lede strong { color: var(--fg); font-weight: 600; }
+  .hero .intro { max-width: 72ch; margin-top: 24px; display: grid; gap: 14px; }
+  .hero .intro p { font-size: 1.05rem; line-height: 1.65; color: var(--muted); margin: 0; }
+  .specs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+  .chip { font-family: var(--font-mono); font-size: .76rem; color: var(--muted);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 13px; }
+  .chip b { color: var(--fg); font-weight: 500; }
+
+  /* ---------- section frame ---------- */
+  section { padding-block: clamp(36px, 6vw, 60px); border-top: 1px solid var(--border); }
+  .sec-head { display: flex; align-items: baseline; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 26px; }
+  .sec-head h2 { font-size: clamp(1.5rem, 3.4vw, 2.1rem); font-weight: 700; }
+  .sec-head p { color: var(--muted); margin: 6px 0 0; max-width: 46ch; font-size: .96rem; }
+
+  /* ---------- project cards ---------- */
+  .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 26px 28px 28px; display: flex; flex-direction: column; min-width: 0; }
+  @media (max-width: 560px) { .card { padding: 20px 18px 22px; } }
+  .card .top { display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 12px; margin-bottom: 4px; }
+  .card h3 { font-size: 1.28rem; font-weight: 700; }
+  .card .kind { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .04em;
+    color: var(--muted); border: 1px solid var(--border); border-radius: 6px;
+    padding: 3px 7px; white-space: nowrap; flex: none; margin-top: 3px; }
+  .ps { margin-top: 16px; display: grid; gap: 6px; align-content: start; }
+  .ps .lab { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .13em;
+    text-transform: uppercase; font-weight: 500; }
+  .ps.function .lab { color: var(--ok); }
+  .ps.problem .lab { color: var(--amber); }
+  .ps.solution .lab { color: var(--accent); }
+  .ps p { margin: 0; font-size: .95rem; line-height: 1.65; color: var(--fg); max-width: 78ch; }
+  .ps p + p { margin-top: 6px; }
+  .ps.problem p { color: var(--muted); }
+  .ps .mono { white-space: nowrap; font-size: .92em; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 18px;
+    padding-top: 2px; border-top: 1px solid var(--border); }
+  @media (max-width: 760px) { .split { grid-template-columns: 1fr; gap: 0; } }
+
+  /* ---------- apps ---------- */
+  .apps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 680px) { .apps { grid-template-columns: 1fr; } }
+  .app { background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px; display: flex; gap: 16px; align-items: flex-start; min-width: 0; }
+  .app .icon { width: 52px; height: 52px; border-radius: 13px; flex: none;
+    display: grid; place-items: center; background: var(--surface-2);
+    border: 1px solid var(--border); color: var(--accent); }
+  .app .icon svg { width: 27px; height: 27px; }
+  .app h3 { font-size: 1.12rem; font-weight: 700; }
+  .app p { margin: 6px 0 12px; font-size: .9rem; color: var(--muted); }
+  .playbtn { display: inline-flex; align-items: center; gap: 8px; font-size: .84rem;
+    font-weight: 600; font-family: var(--font-body); color: #fff; background: var(--accent);
+    padding: 8px 14px; border-radius: 8px; }
+  .playbtn:hover { background: var(--accent-ink); text-decoration: none; }
+  .playbtn.pending { background: var(--surface-2); color: var(--faint);
+    border: 1px dashed var(--border); cursor: default; }
+
+  /* ---------- small fixes list ---------- */
+  .fixes { display: grid; gap: 2px; }
+  .fix { display: grid; grid-template-columns: 180px 1fr; gap: 18px; padding: 14px 2px;
+    border-bottom: 1px solid var(--border); align-items: baseline; }
+  .fix:last-child { border-bottom: 0; }
+  .fix .n { font-family: var(--font-display); font-weight: 700; font-size: 1rem; }
+  .fix .d { color: var(--muted); font-size: .94rem; }
+  @media (max-width: 560px) { .fix { grid-template-columns: 1fr; gap: 3px; } }
+
+  /* ---------- bio ---------- */
+  .bio { max-width: 72ch; display: grid; gap: 16px; }
+  .bio p { font-size: 1.07rem; color: var(--fg); margin: 0; }
+  .bio-draft { color: var(--faint); border: 1px dashed var(--border); border-radius: 10px;
+    padding: 18px 20px; font-size: .97rem; background: var(--surface); }
+
+  footer { border-top: 1px solid var(--border); padding-block: 36px 60px; color: var(--muted);
+    font-size: .88rem; }
+  footer .wrap { display: flex; flex-direction: column; gap: 16px; }
+  .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .disclaimer { margin: 0; font-size: .8rem; color: var(--faint); max-width: 82ch; line-height: 1.55;
+    border-top: 1px dashed var(--border); padding-top: 16px; }
+  .note { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-size: .86rem; color: var(--muted); margin-top: 22px; }
+  .note b { color: var(--fg); font-weight: 600; }
+  .note.warn { background: color-mix(in srgb, var(--amber) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--amber) 42%, var(--border)); color: var(--fg);
+    margin-top: 0; margin-bottom: 22px; }
+  .note.warn b { color: var(--amber); }
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="wrap">
+    <div class="brand"><span class="led"></span> Googlebook Projects</div>
+    <nav>
+      <a href="#about">About</a>
+      <a href="#apps">Android apps</a>
+      <a href="#projects">Projects</a>
+      <a href="#fixes">Smaller fixes</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="eyebrow">Lenovo Googlebook 15 · GooglebookOS (Android 17)</div>
+    <h1>Open-Source Fixes and Apps for the Lenovo Googlebook 15</h1>
+    <div class="intro">
+      <p>This GitHub Page is for fixing the problems of and the software development of GooglebookOS
+        and all Googlebooks at the software level. For now, I can't fix firmware issues because the
+        OEMs lock out developers like myself from accessing drivers and most of the Android backend
+        code!</p>
+      <p>On this page are deep fixes for root problems in the Googlebooks and GooglebookOS as well as
+        original, open-source apps for a brand new class of device that basically no one is building
+        for yet: an x86-64 laptop running GooglebookOS, which is a desktop version of Android 17 that
+        can also run ChromeOS Web Apps like the desktop version of Google Chrome! Even though there
+        are ARM Googlebooks that run a Snapdragon processor, I will only be focusing on x86 Android
+        Fixes and App Development! However, you may edit the code to work with ARM Googlebooks if you
+        would like!</p>
+      <p>Every project here traces a real problem on my Lenovo Googlebook 15 as I used Claude Code to
+        thoroughly read and trace through the system's own code and logs to a tested fix that keeps
+        itself running, prevents itself from breaking via Play Store updates or GooglebookOS updates
+        and operating system upgrades, and publishes on this GitHub Page as open source so others can
+        look at, edit, and fork my code.</p>
+      <p>I encourage all GooglebookOS and Android Developers edit and fork my code so that we can
+        solve these awful GooglebookOS problems and make GooglebookOS the Desktop powerhouse that us
+        Android lovers want it to be! Not only that, but Linux enthusaists can use the code published
+        and edited on this GitHub Page to improve their Linux Distros as well! Together, we can defeat
+        Microslop and make Android and Linux the master race of computing, office and school
+        mutitasking and productivity, creative apps, and gaming! Thank you.</p>
+    </div>
+    <div class="specs">
+      <span class="chip"><b>x86-64</b> Intel</span>
+      <span class="chip"><b>Android 17</b> · GooglebookOS</span>
+      <span class="chip">Linux Terminal <b>VM</b></span>
+      <span class="chip">bridge: <b>adb</b> over Wireless debugging</span>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="eyebrow">The developer</div>
+          <h2>About Thomas Liviakis</h2>
+        </div>
+      </div>
+      <div class="bio">
+        <p class="bio-draft">My bio is coming soon.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="apps">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="eyebrow">On Google Play</div>
+          <h2>Android Apps by Thomas</h2>
+        </div>
+        <p>These are Android apps I've published on the Google Play Store. They are separate
+          from the Googlebook projects below.</p>
+      </div>
+      <div class="note warn"><b>These are general-purpose Android apps. They were not built
+        specifically for the Googlebook.</b> Each app has its own terms: open the app's Google Play listing and
+        read its Terms &amp; Conditions to see whether it is open source or closed source.</div>
+      <div class="apps">
+        <div class="app">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/>
+              <circle cx="12" cy="19" r="1.2" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div>
+            <h3>WiFi Widget</h3>
+            <p>This home-screen widget shows live Wi-Fi details at a glance.</p>
+            <a class="playbtn pending" href="#" aria-disabled="true">Play Store link pending</a>
+          </div>
+        </div>
+        <div class="app">
+          <div class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 7l10 10-5 4V3l5 4L7 17"/></svg>
+          </div>
+          <div>
+            <h3>Bluetooth Widget</h3>
+            <p>This home-screen widget shows your Bluetooth devices.</p>
+            <a class="playbtn pending" href="#" aria-disabled="true">Play Store link pending</a>
+          </div>
+        </div>
+      </div>
+      <div class="note"><b>The Play Store links for these apps are coming soon.</b></div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="eyebrow">The work</div>
+          <h2>Projects</h2>
+        </div>
+        <p>Every project here started as a real problem on the Googlebook. Each one was traced
+          to its root cause in the device's own code and logs and then solved with a fix that
+          keeps itself running.</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <div class="top"><h3>Sleep Guard</h3><span class="kind">helper · app · VM command</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Sleep Guard protects the Googlebook from losing power when the charger is unplugged or
+              plugged in while the lid is closed and the laptop is in deep sleep. Closing the lid still
+              puts the laptop into normal deep sleep, so battery life is not affected.</p>
+            <p>It has three parts. A small helper runs on GooglebookOS with the same permissions as
+              adb, without root. The Sleep Guard app starts and repairs that helper automatically after
+              every reboot, app update and Wi-Fi reconnect, and it shows the helper's status. A command
+              in the Linux Terminal, <span class="mono">sleep-guard</span>, handles pairing,
+              installing, status and logs. Once it is set up, I never have to touch it.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>I would open the lid and find a black screen. Pressing a key started a full
+                boot instead of showing the lock screen, so any open work was lost. It happened after
+                the laptop had slept on the charger and the charger was unplugged before the lid was
+                opened, although not every unplug caused it.</p>
+              <p>A bug report and the firmware logs showed that the embedded controller (EC), the chip
+                that manages power, had cold-rebooted itself and cut all power while the laptop was in
+                deep sleep (S0ix). Its reset flags read "sysjump | hard". The EC source code shows that
+                "hard" means software ordered a cold reboot, because a crash, a watchdog reset or a
+                power failure leaves different flags. The EC log had also recorded a "sleep hang"
+                after an earlier charger change.</p>
+              <p>The trigger is a race. With the lid closed, GooglebookOS force-disables every wakelock,
+                so when a charger change wakes the laptop, it falls back into deep sleep within about
+                60 milliseconds while the USB-C controller is still handling the change. Lenovo's EC
+                module is closed source, so the exact sender of the reboot command could not be
+                identified. Many other causes were checked and ruled out, including the Setup Wizard's
+                auto-shutdown, the lid settings, an Android shutdown, the battery level, heat, the 80%
+                charge limit and the EC watchdog.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>Sleep Guard gives the hardware a moment to finish before the laptop goes back to
+                sleep. It notices every wake that happens with the lid closed within about 5
+                milliseconds and checks again 15 milliseconds later that the lid really is closed.
+                Then it briefly tells GooglebookOS that the lid is open for power purposes, which makes
+                wakelocks work again, while it keeps the screen and the glow bar off. The hold lasts
+                0.3 seconds, and it stretches to a 20-second settle period when the charger has
+                changed. After that, everything is released and normal deep sleep resumes.</p>
+              <p>It was proven live on October 10, 2026. An unplug during deep sleep was caught 87
+                milliseconds after the wake, a plug-in was caught 18 milliseconds after the wake, and
+                the laptop stayed up overnight.</p>
+              <p>Safety was treated as seriously as the fix. An early version once stalled the power
+                service for about two minutes, so the helper now reads system service output
+                asynchronously with a deadline and a size cap. Every command has a time limit, and a
+                watchdog releases everything and exits if the helper ever stalls. After every exit, it
+                restores the real lid state. On a new GooglebookOS build, it runs a self-test and
+                stands down with a notification if anything has changed, instead of guessing. It also
+                notices when Wireless debugging moves to a new port after a Wi-Fi drop and publishes
+                the new port, so the app can always reconnect.</p>
+              <p>Sleep Guard wins a timing race. It is not a firmware fix. Opening the lid before
+                unplugging the charger is always completely safe.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Shadow Trackpad Fix</h3><span class="kind">input helper · app · diagnostic</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Shadow Trackpad Fix makes the Googlebook's trackpad work properly inside the Shadow PC
+              cloud computer app. Two-finger scrolling becomes smooth and precise, including slow
+              scrolling, sideways scrolling and flicks with momentum. Pinch to zoom works, three- and
+              four-finger swipes switch windows and go back and forward, and one-, two- and
+              three-finger taps give left, right and middle clicks.</p>
+            <p>The project has four parts. A small helper runs on GooglebookOS with adb permissions and
+              switches itself on only while Shadow has captured the pointer. The Shadow Trackpad Fix
+              app restarts that helper after every reboot and update, and it tells me when Shadow or GooglebookOS has been updated. A command in the Linux Terminal,
+              <span class="mono">shadow-trackpad</span>, controls the helper and includes a doctor
+              that re-checks everything after an update. Trackpad Probe is the diagnostic app that
+              proved the root cause, and it is now the test target for the helper and the doctor.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>In Shadow PC, slow two-finger scrolling did nothing, and normal scrolling was jerky
+                and lost much of its movement. Pinch, flick and multi-finger swipes did not work at
+                all. Turning on Shadow's Accessibility option did not help, because Shadow's
+                Accessibility service only handles the keyboard.</p>
+              <p>Two things combine to cause it. Shadow captures the pointer with Android's older
+                pointer capture call, and on this GooglebookOS build, which is based on Android 17,
+                that call now gets "relative" capture mode by default. In relative mode, Android
+                passes on only cursor moves, clicks and scrolling. Pinch, flicks and three- and
+                four-finger swipes are dropped, and the raw finger data that Shadow's own gesture code
+                needs never arrives. The scrolling that does arrive comes in small fractional steps,
+                and Shadow rounds each step down to a whole number, so every step smaller than one
+                notch becomes zero.</p>
+              <p>Trackpad Probe proved this. It captures the pointer exactly the way Shadow does and
+                logs every event. With capture on, 100% of slow scrolls and 30% to 85% of normal
+                scrolls were lost, and pinch, flick and swipe produced nothing. The trackpad
+                hardware, my settings, the network and system load were all ruled out, and
+                the system flag behind relative mode cannot be changed without root.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>While Shadow holds pointer capture, the helper takes exclusive control of the
+                trackpad, reads the raw finger data itself and runs its own gesture engine. It sends
+                cursor moves and clicks straight to Shadow. Scrolling is sent as a synthetic
+                two-finger touchpad drag, which Shadow's own gesture code turns into fine-grained
+                Windows scrolling. Pinch is sent as Ctrl plus that drag, which is how Windows
+                precision touchpads zoom. GooglebookOS intercepts the Windows key and Alt+Tab, so
+                three-finger swipes use the Ctrl+Alt+Tab switcher instead, and four-finger swipes
+                send Back and Forward. The moment capture ends, the trackpad goes back to
+                Android.</p>
+              <p>It is fast. In an A/B test, the time from finger to app was 9.4 milliseconds with the
+                helper and 11.2 milliseconds with Android's own handling, with no lost movement.</p>
+              <p>It was built to be safe and to keep working. A watchdog releases the trackpad if the
+                helper stalls for 1.5 seconds. The app proves it is talking to the real adb service
+                before it hands over any secret, and that secret is derived from the paired key, so
+                only the Linux Terminal and the app can compute it. After an update, the doctor
+                decompiles the new Shadow app, re-checks every assumption the helper relies on, and
+                switches any broken feature to a safe fallback until the check passes again. Before
+                release, the code went through three rounds of independent review, and a fuzz test
+                ran one million gesture sequences with zero stuck keys or buttons. The final doctor
+                run passed all 25 checks.</p>
+              <p>The real fix belongs in Shadow itself, which could keep the fractional scroll steps
+                or request absolute capture mode.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Buds LE Link</h3><span class="kind">helper app · plugin fix</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Buds LE Link keeps Samsung's Galaxy Buds4 fully connected to Samsung's Galaxy Wearable
+              app on the Googlebook, so the earbuds' controls, settings and battery widget work
+              without tapping Connect over and over. It is a small background app. It reconnects the
+              earbuds' control link a few seconds after they connect, then checks the link about once
+              a minute for several minutes and warns me only if five of those checks fail in a
+              row. Every 15 minutes, it
+              also sends the reconnect signal again while the earbuds are connected. A status window
+              shows the link state and has a Reconnect now button.</p>
+            <p>The project also includes the fix that stopped Galaxy Wearable from crashing in the
+              first place.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>The first problem was a crash. Galaxy Wearable crashed the moment the Buds4 were
+                connected and then on every launch, and the Buds widget never appeared. Galaxy
+                Wearable itself was fine. Its Galaxy Buds plugin was the part that crashed, because
+                Samsung's x86-64 build of that plugin includes only 3 of its 8 native libraries, so it
+                failed at startup.</p>
+              <p>The second problem appeared once the crash was fixed. The plugin's screens and widget
+                showed "disconnected" while music was playing through the earbuds, and I had to tap Connect every time. The link also dropped at random.</p>
+              <p>The Googlebook connects the Buds4 over LE Audio only and turns down the older
+                Bluetooth audio connections. The plugin reconnects automatically only when one of
+                those older connections comes up, which never happens on this laptop. It does see the
+                LE Audio connection, but it ignores it unless the earbuds are one specific other
+                Galaxy Buds model and the host has a Samsung-only system feature, so the Buds4 fail
+                that check.
+                The plugin's control channel also closes whenever an earbud's link blips, and nothing
+                reopens it.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>The crash was fixed by reinstalling the same Play Store copy of the plugin in its ARM
+                version, which contains all of its libraries. GooglebookOS translates it to run on the
+                Intel processor. The plugin kept its data and its Play Store link, and it received the
+                Nearby devices permission it had never been given. The widget then appeared by
+                itself.</p>
+              <p>To solve the connection problem, the plugin's code was studied to find out what makes
+                it connect. At startup, it sends itself an internal "ready" signal, and its handler for
+                that signal does count LE Audio as connected. Any app is allowed to send that signal.
+                Buds LE Link sends it twice, a few seconds after the earbuds connect. The first signal
+                refreshes the plugin's stale state, and the second one opens the control channel.
+                Audio stays on LE Audio the whole time. In the first test, the link came back about 4
+                seconds after the earbuds came out of the case.</p>
+              <p>I wanted it to be foolproof, so version 2 added the 15-minute check, the status
+                window, and self-checks for every permission and battery setting it needs, with a Fix
+                button for each one in the status window. Version 2.2 turned that window into a normal one that closes
+                cleanly. Both fixes depend on how this exact version of Samsung's plugin behaves, so a
+                Samsung update could undo them, and the app warns me if a different plugin version is installed.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Gmail Web App Notification Issue</h3><span class="kind">notification system</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>This project gives the Gmail web app on the Googlebook real, lasting notifications,
+              even when Gmail is completely closed. Each new email pops up as its own notification,
+              stays in the Notification Center until I deal with it, and is grouped by
+              account. Every email notification has three buttons: Reply, Delete and Mark as read.
+              Tapping a notification opens that email in the Gmail web app.</p>
+            <p>It has four parts. A 2021 version of Google's Gmail Go app works only as the engine
+              that receives Google's push messages. Notification Keeper turns each of its alerts into
+              a proper notification. A helper inside Notification Keeper carries out a tap, Reply or
+              Delete in the Gmail web app window. A small background service in the Linux Terminal
+              handles Mark as read without opening any window.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>On the Googlebook, Gmail is a web app. Its alerts are created by the open Gmail web
+                page, and Gmail's own web code withdraws each alert about 7 seconds after posting it,
+                so nothing is left in the Notification Center. When the window is closed, GooglebookOS
+                ends the page within a fraction of a second. From then on nothing can notify at all,
+                because Gmail's web code has no way to receive push messages while it is closed. Do
+                Not Disturb, notification settings, battery settings and rate limits were all checked
+                and ruled out.</p>
+              <p>Installing the full Gmail Android app did not solve it. On a Googlebook, the full app
+                detects the desktop and switches itself into the same web mode, and it disables 84 of
+                its own components, including the one that receives push messages and the one that
+                syncs mail. The adb shell is not allowed to switch those components back on. The
+                newer 2022 version of Gmail Go never asks for permission to post notifications, so
+                Android blocks all of them.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>The 2021 version of Gmail Go has no web mode, keeps its own push receiver and mail
+                sync, and targets an Android version old enough that its notification permission can
+                be granted from adb. Google's own signed copy of it was installed, granted that
+                permission, exempted from battery limits and set to stay silent. When new mail
+                arrives, Google's push wakes Gmail Go even if it has been closed, and it syncs the
+                email. Notification Keeper then posts its own pop-up copy and removes Gmail Go's
+                original. The whole chain takes about 1 to 1.5 seconds from Google's push to the
+                pop-up. If the Gmail web app is open and posts its own alert as well, the Keeper
+                removes that duplicate.</p>
+              <p>Tap, Reply and Delete open the right account's inbox in the Gmail web app. The helper
+                finds the email by its exact subject and arrival time, and then it opens the email or
+                uses Gmail's own menu to reply or delete. It only touches the screen when Gmail is the
+                active window and nothing covers it. For Reply and Delete, it removes the notification
+                only after the action succeeds. Mark as read works without opening anything. The background service
+                in the Linux Terminal keeps a hidden browser signed in to each Gmail account, finds
+                the unread email by sender address, subject and time, and clicks Gmail's own Mark as
+                read button. Each one takes about 4 to 6 seconds. A settings guard saves my Gmail notification settings and puts them back if they are ever reset.</p>
+              <p>Every part was proven on October 12, 2026, including notifications with Gmail Go
+                closed, Mark as read on more than one account, and tap, Reply and Delete. Archive was left out
+                because Android shows at most three buttons on a notification. Mark as read currently
+                needs the Linux Terminal running with Wireless debugging, and it works for @gmail.com
+                and @googlemail.com accounts only.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Notification Keeper</h3><span class="kind">open-source app</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Notification Keeper is an open-source Android app that keeps web app notifications in
+              the GooglebookOS Notification Center. When a Chrome web app or website withdraws one of
+              its own notifications a few seconds after posting it, the Keeper posts a quiet copy that
+              stays until I tap it or clear it. Tapping the copy opens the site or web app.
+              The Keeper has no internet permission, does no polling and stores no message
+              content.</p>
+            <p>It was built first for the Gmail web app. For Gmail, it goes further. It turns each
+              email alert into a rich notification with Reply, Delete and Mark as read, it guards
+              Gmail's notification settings, and it runs the Gmail helper described in the card
+              above. Its long-term goal is to preserve notifications for every Chrome web app on
+              GooglebookOS, and other developers will need to extend the code to get there.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>Websites and Chrome web apps can withdraw their own notifications a few seconds after
+                posting them, and the Gmail web app does this with every alert. The alert pops up,
+                disappears, and leaves nothing behind in the Notification Center, so a notification
+                that arrives while I am away from the screen is simply gone.</p>
+              <p>No GooglebookOS setting causes this. Do Not Disturb, snoozing, notification timeouts
+                and rate limits were all checked and ruled out. The site's own code withdraws the
+                alert, and Chrome passes that on to the system.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>The Keeper is a notification listener. It recognizes notifications that Chrome
+                delivers for websites and web apps, and it watches for the moment one is withdrawn by
+                the app itself. It ignores notifications that I swipe away or tap. When an
+                alert is withdrawn, the Keeper posts a copy with the same title, text and icon on its
+                own "Kept web notifications" category, which keeps it in the Notification Center. It
+                keeps up to 15 copies, because Android allows each app only 50 notifications. A Run
+                test button posts a fake web notification and withdraws it after 7 seconds, so anyone
+                can check that the Keeper catches it.</p>
+              <p>This generic keeping already works for any web app's withdrawn alerts without any
+                changes. The rich features are the action buttons, the settings guard, and a
+                privileged link that lets the Keeper manage another app's notification categories.
+                Those are written only for Gmail and Gmail Go. Bringing them to other web apps means
+                editing the app names written into the code and writing matching logic for each app,
+                and that is the work this project invites other developers to do.</p>
+              <p>The Keeper cannot make a closed web app notify. For Gmail, that part is handled by
+                Gmail Go, as the card above explains.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Battery Widget</h3><span class="kind">system fix · repair command</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>This fix makes Google's built-in Batteries widget on the Googlebook show the battery
+              level of connected Bluetooth earbuds, such as the Galaxy Buds4 and the Pixel Buds 2a,
+              next to the laptop's own battery. It is a one-time permission change. A small command
+              in the Linux Terminal, <span class="mono">fix-battery-widget</span>, re-applies it in
+              seconds if the widget ever goes blank again, for example after a factory reset.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>The earbuds showed up in Bluetooth Settings, but the Batteries widget only ever
+                showed the laptop. The earbuds and the Bluetooth system were working normally, and
+                the widget was even being told every time a Bluetooth device connected or
+                disconnected. It simply could not read them.</p>
+              <p>The widget belongs to a preinstalled Google app called Settings Services. Since
+                Android 12, an app that wants to list connected Bluetooth devices and read their
+                battery levels needs the Nearby devices permission (BLUETOOTH_CONNECT). Settings
+                Services asks for that permission, but on the Googlebook it had never been granted
+                for my account, so the widget could not see any devices. Bluetooth Settings
+                still showed the earbuds because it runs with its own system privileges.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>The Nearby devices permission was granted to Settings Services over adb from the
+                Linux Terminal. The widget refreshes when a Bluetooth device connects, and it only
+                lists devices that are connected at that moment. When I reconnected the earbuds, both the Galaxy Buds4 and the Pixel Buds 2a appeared in the widget right
+                away.</p>
+              <p>To make the fix stick, the permission was marked as my own choice, so the
+                system treats it as a deliberate setting. Android's automatic removal of permissions
+                from unused apps was also turned off for Settings Services. The
+                <span class="mono">fix-battery-widget</span> command repeats all of these steps and
+                prints the result, so I can see that it worked.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Waydroid</h3><span class="kind">Linux VM · Android container</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>This project runs Waydroid, a complete Android 13 system with Google Play, inside the
+              Googlebook's Linux Terminal. Waydroid includes Intel's ARM translator, so it can install
+              Android apps that only come in ARM versions, including 32-bit ARM apps that
+              GooglebookOS itself cannot run. Two buttons on the panel of the Linux Terminal's display
+              open Waydroid and restart it, and the same actions are available as the terminal
+              commands <span class="mono">waydroid-open</span> and
+              <span class="mono">waydroid-restart</span>.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>I wanted to run ARM-only Google Play apps on the x86 Googlebook. GooglebookOS
+                can already translate 64-bit ARM apps, but it has no support for 32-bit ARM apps.
+                Waydroid had been installed in the Linux Terminal, but Android never finished
+                starting.</p>
+              <p>The cause was Waydroid's network setup. Its script adds an iptables rule that needs a
+                kernel feature called the CHECKSUM target, and the Linux Terminal's kernel is built
+                without it. The network script failed, and Waydroid gave up before Android could
+                boot.</p>
+              <p>Three more problems appeared after that. Waydroid froze Android whenever its window
+                was hidden, which also stopped Play Store downloads. The virtual machine's memory and
+                swap filled up, so Android looked frozen. Google Play also refused to sign in until
+                the device was registered with Google, because a Waydroid system is not a certified
+                device.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>Waydroid's network script was switched to nftables, which the kernel fully supports,
+                and Android then booted in about 18 seconds with working internet and Google Play. A
+                systemd drop-in re-applies that change every time Waydroid starts, so package upgrades
+                cannot undo it. The unused LXC network service, which failed in the same way, was
+                turned off.</p>
+              <p>Auto-freeze was switched off, so Android keeps running in the background. A 4 GB swap
+                file was added at a lower priority than the fast compressed swap, which freed enough
+                memory for the Play Store to run smoothly. I registered the device with Google so I could sign in to Google Play, and the two launcher buttons were added and
+                tested.</p>
+              <p>An app that ships only with 64-bit ARM libraries installed successfully from
+                Waydroid's Play Store, but no ARM app has been launched and tested yet. The virtual
+                machine has no GPU acceleration, so Android draws everything in software. Waydroid's
+                window appears only inside the Linux Terminal's display view, and apps with strict
+                integrity checks usually refuse to run.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3>Continue On</h3><span class="kind">workaround · mirroring app</span></div>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>This workaround brings my Android devices onto the Googlebook's screen when
+              Google's Continue On feature is not available for them. It uses Scrcpy for Android, an
+              open-source scrcpy client by Miuzarte that runs on GooglebookOS itself. It streams a
+              device's screen and sound into a window on the Googlebook, and the Googlebook's
+              trackpad, mouse and keyboard control the device directly. Nothing is installed on the
+              phone or tablet, and no root is needed.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>Continue On is part of Google's Better Together features, and it lets a Googlebook
+                pick up apps from a phone. Google's requirements say the phone must run Android 17 or
+                newer. The feature also launched for Pixel phones only, with Samsung support promised
+                later. My Lenovo Tab P12 runs Android 15 and my Galaxy S23 Ultra runs Android 16, so both devices are left out.</p>
+              <p>Setting up a replacement had its own obstacles. Android 17's new local network
+                permission had not been granted to the app. The app could not discover the devices on
+                the network, so they had to be added by hand. The tablet refused the first connection
+                and had to be paired again. The first stream also lagged, because the tablet was
+                sending its full 2944 by 1840 resolution over Wi-Fi.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>Before the app was installed, its download was checked against the checksum
+                published on GitHub and its signature was verified. It was given the local network and
+                notification permissions, allowed to run in the background and exempted from battery
+                saving, so the connection does not drop when the app is not in front. Each device was
+                paired once over Wireless debugging and added by the IP address and port shown on its
+                Wireless debugging screen. The stream was limited to 1920 pixels at 60 frames per
+                second, which removed the lag and made the stream much smoother.</p>
+              <p>The app mirrors one device at a time in a single window, and it streams the device
+                instead of handing apps over the way Continue On does. After a device restarts, its
+                Wireless debugging port changes, so the saved entry needs the new port. Apps that
+                block screen capture show a black screen.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="fixes">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <div class="eyebrow">Also solved</div>
+          <h2>Smaller fixes</h2>
+        </div>
+        <p>These are one-off diagnoses and fixes on the same Googlebook, written up for
+          reference.</p>
+      </div>
+      <div class="fixes">
+        <div class="fix"><div class="n">Terminal "Keep Awake"</div>
+          <div class="d">I thought the Linux Terminal's Keep Awake setting was broken,
+            because the screen still went to sleep while the Terminal was open. Decompiling the
+            Terminal app showed that Keep Awake is not a screen setting at all. It holds a partial
+            wake lock, which keeps the processor and the Linux virtual machine running while the
+            screen is off, and it only takes that lock after I switch away from the Terminal or the screen turns off. It does nothing while the Terminal is in front, and
+            when its timer runs out, it switches itself back to Off. The screen was turning off
+            because of the normal five-minute GooglebookOS screen timeout, which can be changed in
+            the Screen timeout option of the Display settings. Later work on Sleep Guard also found
+            that closing the lid disables every wake lock, so Keep Awake cannot keep the virtual
+            machine running while the lid is closed. The setting works as designed, and nothing
+            needed to be fixed.</div></div>
+        <div class="fix"><div class="n">Terminal session protection (tmux)</div>
+          <div class="d">Long jobs in the Linux Terminal, including Claude Code, were dying in the
+            middle of their work. The Googlebook's logs showed why. About two minutes after the
+            Terminal app went into the background, its connection to the Linux virtual machine
+            sometimes dropped, and the terminal server inside the virtual machine then closed the
+            shell and every program running in it, even though the app and the virtual machine
+            kept running. The fix was to install tmux, which keeps programs running in a session
+            that does not depend on the window. The shell's startup file now opens or re-attaches
+            that session automatically whenever the Terminal opens a new window, so after a dropped
+            connection, everything is still running exactly where it was left. Command shells that
+            programs start in the background are not affected, and setting
+            <span class="mono">NO_AUTO_TMUX=1</span> skips the feature. In testing, a simulated
+            disconnect left the running program alive, and a new window re-attached the same
+            session. tmux cannot help if the whole virtual machine stops, for example after a
+            restart or when an update closes the Terminal app. Because mouse mode is on, text is
+            selected by holding Shift while dragging.</div></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-row">
+      <span>© 2026 Thomas Liviakis · Googlebook Projects</span>
+      <span class="mono">Lenovo Googlebook 15 · GooglebookOS (Android 17)</span>
+    </div>
+    <p class="disclaimer">This is an independent, unofficial project. It is not affiliated with,
+      endorsed by, or sponsored by Google. "Googlebook", "GooglebookOS", "Android", "Gmail" and related names
+      belong to their respective owners, and are used only to describe what this software works
+      with. Released under the MIT License.</p>
+  </div>
+</footer>
+</body>
+</html>
