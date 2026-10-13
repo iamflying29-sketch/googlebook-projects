@@ -131,11 +131,19 @@
   .bio-draft { color: var(--faint); border: 1px dashed var(--border); border-radius: 10px;
     padding: 18px 20px; font-size: .97rem; background: var(--surface); }
 
-  .repo-link { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border); }
-  .repo-link a, .hero-links .ghost { display: inline-flex; align-items: center; font-size: .86rem;
+  .card { position: relative; cursor: pointer; transition: border-color .15s ease, transform .15s ease; }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-link { color: inherit; }
+  .card-link:hover { text-decoration: none; }
+  .card-link::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+  .card-link:focus-visible { outline: none; }
+  .card-link:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .card-hint { margin: 4px 0 0; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .02em;
+    color: var(--accent-ink); }
+  .hero-links .ghost { display: inline-flex; align-items: center; font-size: .86rem;
     font-weight: 600; color: var(--accent-ink); border: 1px solid var(--border); border-radius: 8px;
     padding: 8px 14px; background: var(--surface-2); }
-  .repo-link a:hover, .hero-links .ghost:hover { border-color: var(--accent); text-decoration: none; }
+  .hero-links .ghost:hover { border-color: var(--accent); text-decoration: none; }
   .hero-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
   .fix .n a { color: var(--fg); }
   .fix .n a:hover { color: var(--accent-ink); }
@@ -290,7 +298,8 @@
 
       <div class="grid">
         <article class="card">
-          <div class="top"><h3>Sleep Guard</h3><span class="kind">helper · app · VM command</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-sleep-guard" target="_blank" rel="noopener">Sleep Guard</a></h3><span class="kind">helper · app · VM command</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>Sleep Guard protects the Googlebook from losing power when the charger is unplugged or
               plugged in while the lid is closed and the laptop is in deep sleep. Closing the lid still
@@ -344,11 +353,11 @@
                 unplugging the charger is always completely safe.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-sleep-guard" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Shadow Trackpad Fix</h3><span class="kind">input helper · app · diagnostic</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-shadow-trackpad-fix" target="_blank" rel="noopener">Shadow Trackpad Fix</a></h3><span class="kind">input helper · app · diagnostic</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>Shadow Trackpad Fix makes the Googlebook's trackpad work properly inside the Shadow PC
               cloud computer app. Two-finger scrolling becomes smooth and precise, including slow
@@ -407,11 +416,11 @@
                 or request absolute capture mode.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-shadow-trackpad-fix" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Buds LE Link</h3><span class="kind">helper app · plugin fix</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-buds-le-link" target="_blank" rel="noopener">Buds LE Link</a></h3><span class="kind">helper app · plugin fix</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>Buds LE Link keeps Samsung's Galaxy Buds4 fully connected to Samsung's Galaxy Wearable
               app on the Googlebook, so the earbuds' controls, settings and battery widget work
@@ -462,11 +471,11 @@
                 Samsung update could undo them, and the app warns me if a different plugin version is installed.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-buds-le-link" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Gmail Web App Notification Issue</h3><span class="kind">notification system</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-gmail-web-app-notifications" target="_blank" rel="noopener">Gmail Web App Notification Issue</a></h3><span class="kind">notification system</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>This project gives the Gmail web app on the Googlebook real, lasting notifications,
               even when Gmail is completely closed. Each new email pops up as its own notification,
@@ -520,11 +529,11 @@
                 and @googlemail.com accounts only.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-gmail-web-app-notifications" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Notification Keeper</h3><span class="kind">open-source app</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-notification-keeper" target="_blank" rel="noopener">Notification Keeper</a></h3><span class="kind">open-source app</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>Notification Keeper is an open-source Android app that keeps web app notifications in
               the GooglebookOS Notification Center. When a Chrome web app or website withdraws one of
@@ -567,11 +576,11 @@
                 Gmail Go, as the card above explains.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-notification-keeper" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Battery Widget</h3><span class="kind">system fix · repair command</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-battery-widget" target="_blank" rel="noopener">Battery Widget</a></h3><span class="kind">system fix · repair command</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>This fix makes Google's built-in Batteries widget on the Googlebook show the battery
               level of connected Bluetooth earbuds, such as the Galaxy Buds4 and the Pixel Buds 2a,
@@ -604,11 +613,11 @@
                 prints the result, so I can see that it worked.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-battery-widget" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Waydroid</h3><span class="kind">Linux VM · Android container</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-waydroid" target="_blank" rel="noopener">Waydroid</a></h3><span class="kind">Linux VM · Android container</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>This project runs Waydroid, a complete Android 13 system with Google Play, inside the
               Googlebook's Linux Terminal. Waydroid includes Intel's ARM translator, so it can install
@@ -651,11 +660,11 @@
                 integrity checks usually refuse to run.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-waydroid" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
 
         <article class="card">
-          <div class="top"><h3>Continue On</h3><span class="kind">workaround · mirroring app</span></div>
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-continue-on" target="_blank" rel="noopener">Continue On</a></h3><span class="kind">workaround · mirroring app</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
             <p>This workaround brings my Android devices onto the Googlebook's screen when
               Google's Continue On feature is not available for them. It uses Scrcpy for Android, an
@@ -690,7 +699,6 @@
                 block screen capture show a black screen.</p>
             </div>
           </div>
-          <div class="repo-link"><a href="https://github.com/iamflying29-sketch/googlebook-continue-on" target="_blank" rel="noopener">View the code and instructions on GitHub</a></div>
         </article>
       </div>
     </div>
