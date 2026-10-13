@@ -1,0 +1,24 @@
+[submodule "projects/sleep-guard"]
+	path = projects/sleep-guard
+	url = https://github.com/iamflying29-sketch/googlebook-sleep-guard.git
+[submodule "projects/shadow-trackpad-fix"]
+	path = projects/shadow-trackpad-fix
+	url = https://github.com/iamflying29-sketch/googlebook-shadow-trackpad-fix.git
+[submodule "projects/buds-le-link"]
+	path = projects/buds-le-link
+	url = https://github.com/iamflying29-sketch/googlebook-buds-le-link.git
+[submodule "projects/gmail-web-app-notifications"]
+	path = projects/gmail-web-app-notifications
+	url = https://github.com/iamflying29-sketch/googlebook-gmail-web-app-notifications.git
+[submodule "projects/notification-keeper"]
+	path = projects/notification-keeper
+	url = https://github.com/iamflying29-sketch/googlebook-notification-keeper.git
+[submodule "projects/battery-widget"]
+	path = projects/battery-widget
+	url = https://github.com/iamflying29-sketch/googlebook-battery-widget.git
+[submodule "projects/waydroid"]
+	path = projects/waydroid
+	url = https://github.com/iamflying29-sketch/googlebook-waydroid.git
+[submodule "projects/continue-on"]
+	path = projects/continue-on
+	url = https://github.com/iamflying29-sketch/googlebook-continue-on.git
