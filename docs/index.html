@@ -706,12 +706,15 @@
           <div class="ps function"><span class="lab">What it does</span>
             <p>Forge is my Cursor-style AI coding IDE for the Googlebook. It runs my local Llama 3.1
               model through Ollama in the Linux Terminal and gives me what I have in Cursor: an editor
-              next to the chat, an agent that reads, edits and runs code for me with my approval, a
-              visible thinking process, diffs I can keep or revert, inline edits, codebase search,
-              notepads, rules, source control with model-written commit messages, a terminal, and
-              native app windows, one per project. A GPU engine built into the app runs the same model on the
-              laptop's Intel graphics, and I can paste screenshots, which a vision model reads for
-              Llama. Nothing I type leaves the machine.</p>
+              with code intelligence next to a chat with several tabs, an agent that reads, edits and
+              runs code for me with my approval, a visible thinking process, every change highlighted
+              inline with Keep and Undo, checkpoints I can restore, context from files, folders, docs,
+              past chats, the web and linter errors, attachments of any kind, voice input, memories,
+              rules, hooks and custom modes, a Python debugger, Jupyter notebooks, a codebase index that
+              searches by meaning, source control, a terminal, and native app windows, one per project.
+              A GPU engine built into the app runs the same model on the laptop's Intel graphics, and I
+              can paste screenshots, which a vision model reads for Llama. Nothing I type leaves the
+              machine.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -731,7 +734,9 @@
                 checkpoints for every change, automatic syntax checks after every edit, and a
                 prompt cache strategy that makes follow-ups answer in seconds. Memory guards show
                 the VM's free RAM, refuse to load the model into a full VM and unload it before
-                the VM gets into danger.</p>
+                the VM gets into danger. Helpers such as the language servers, the debugger, notebook
+                kernels and the small embedding model start only when needed and only when a memory
+                check passes, and they stop again when they are not used.</p>
               <p>For the GPU, I cross-compiled llama.cpp's Vulkan backend for Android and packaged
                 it into the Forge app, where the Intel graphics are reachable. The app downloads the
                 weights once from Ollama's store, asks the VM to hand memory back, and serves the
