@@ -700,6 +700,46 @@
             </div>
           </div>
         </article>
+        <article class="card">
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-forge-ide" target="_blank" rel="noopener">Forge IDE</a></h3><span class="kind">AI coding IDE · app · GPU engine</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Forge is my Cursor-style AI coding IDE for the Googlebook. It runs my local Llama 3.1
+              model through Ollama in the Linux Terminal and gives me what I have in Cursor: an editor
+              next to the chat, an agent that reads, edits and runs code for me with my approval, a
+              visible thinking process, diffs I can keep or revert, inline edits, codebase search,
+              notepads, rules, source control with model-written commit messages, a terminal, and
+              a native app window. A GPU engine built into the app runs the same model on the
+              laptop's Intel graphics. Nothing I type leaves the machine.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>Ollama runs Llama 3.1 8B in the Linux Terminal, but a terminal is a poor place to do
+                real coding work with a model. The CPU in the Linux VM processes prompts at only 10
+                to 23 tokens per second, so an agent with a few thousand tokens of context waited
+                minutes before its first word. The VM has 7.8 GB and the model takes 5.2 GB of it,
+                and the laptop takes memory back from the VM when it needs it; one reload into a
+                full VM made the laptop kill the whole VM.</p>
+              <p>The Intel graphics could not help: the Terminal app only passes the GPU through to
+                the VM on devices where Google has set a flag, the Googlebook is not one of them, and
+                flipping the flag needs root.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>A pure Python server in the VM serves the IDE (built on the Monaco editor from
+                VS Code) and runs the agent with a tool protocol an 8B model follows reliably,
+                checkpoints for every change, automatic syntax checks after every edit, and a
+                prompt cache strategy that makes follow-ups answer in seconds. Memory guards show
+                the VM's free RAM, refuse to load the model into a full VM and unload it before
+                the VM gets into danger.</p>
+              <p>For the GPU, I cross-compiled llama.cpp's Vulkan backend for Android and packaged
+                it into the Forge app, where the Intel graphics are reachable. The app downloads the
+                weights once from Ollama's store, asks the VM to hand memory back, and serves the
+                model to the IDE. Prompt processing went from 10 to 23 tokens per second to about
+                100, the first token of a cold agent prompt from 134 seconds to 9, and a three-step
+                agent task from 257 seconds to 50, with no model memory left inside the VM.</p>
+            </div>
+          </div>
+        </article>
       </div>
     </div>
   </section>

@@ -22,3 +22,6 @@
 [submodule "projects/continue-on"]
 	path = projects/continue-on
 	url = https://github.com/iamflying29-sketch/googlebook-continue-on.git
+[submodule "projects/forge-ide"]
+	path = projects/forge-ide
+	url = https://github.com/iamflying29-sketch/googlebook-forge-ide.git
