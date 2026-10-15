@@ -74,7 +74,9 @@ notification.
 ## A desktop shortcut for updating WebView Beta
 
 `update-shortcut/` is a tiny app, "Update WebView Beta", with its source and build script (`build.sh` builds and signs
-it with the Android SDK; install it with `adb install`). Clicking its icon shows a short reminder to close the
+it with the Android SDK). A ready-made APK is attached to the
+[Update WebView Beta 1.0 release](https://github.com/iamflying29-sketch/googlebook-projects/releases/tag/webview-guard-shortcut-1.0),
+with its SHA-256 checksum; install it with `adb install UpdateWebViewBeta.apk`. Clicking its icon shows a short reminder to close the
 Terminal first and then opens WebView Beta's page in the Play Store, where I tap Update. Its third button, "Add to
 desktop", asks the launcher to put the shortcut on the desktop. It has no permissions.
 
