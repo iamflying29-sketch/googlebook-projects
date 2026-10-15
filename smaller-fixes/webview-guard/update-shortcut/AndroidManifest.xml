@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Update WebView Beta: a desktop shortcut that reminds me to close the Linux Terminal and then opens WebView Beta's
+     Play Store page, where I tap Update. -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="local.webviewupdate">
+    <queries>
+        <package android:name="com.android.vending" />
+    </queries>
+    <application android:label="@string/app_name" android:icon="@mipmap/ic_launcher" android:allowBackup="false">
+        <activity android:name=".MainActivity" android:exported="true"
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar"
+            android:excludeFromRecents="true" android:taskAffinity="">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

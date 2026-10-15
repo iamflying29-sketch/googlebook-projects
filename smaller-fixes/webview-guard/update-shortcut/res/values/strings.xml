@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Update WebView Beta</string>
+    <string name="title">Update WebView Beta</string>
+    <string name="message">The Linux Terminal uses WebView Beta, so updating it closes the Terminal and stops Linux. Close the Terminal first. Then tap Open Play Store, and tap Update there.</string>
+    <string name="open">Open Play Store</string>
+    <string name="cancel">Cancel</string>
+    <string name="pin">Add to desktop</string>
+</resources>

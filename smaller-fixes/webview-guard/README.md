@@ -71,6 +71,17 @@ WebView Guard has two small parts:
 `webview-guard` alone shows the state, `webview-guard check` does the work, and `webview-guard test` posts a test
 notification.
 
+## A desktop shortcut for updating WebView Beta
+
+`update-shortcut/` is a tiny app, "Update WebView Beta", with its source and build script (`build.sh` builds and signs
+it with the Android SDK; install it with `adb install`). Clicking its icon shows a short reminder to close the
+Terminal first and then opens WebView Beta's page in the Play Store, where I tap Update. Its third button, "Add to
+desktop", asks the launcher to put the shortcut on the desktop. It has no permissions.
+
+Installing WebView Beta also brought a "WebView DevTools" icon to my desktop. That is a tool for web developers that
+Google builds into every pre-release WebView, and it is not needed. Removing its icon from the desktop is fine, but
+uninstalling it would remove WebView Beta itself, because it is part of the same package.
+
 ## How I tested it
 
 - With the Terminal open, I installed WebView Beta and added it for the device's other user. Android kept using the
