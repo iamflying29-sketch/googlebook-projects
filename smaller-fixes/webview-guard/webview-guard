@@ -1,0 +1,230 @@
+#!/usr/bin/python3 -I
+"""webview-guard: keeps Android System WebView updates from closing the Terminal app (and with it the Linux VM).
+
+Android closes every app that uses WebView when WebView is updated, and the Terminal app draws its window with
+WebView. With WebView's automatic updates turned off in the Play Store, this tool makes sure the update still happens,
+at a safe moment: when Google has released a newer WebView than the Googlebook has, it starts a small watcher on the
+Googlebook (watch.sh, run as the adb shell user, so it keeps running after the Terminal closes). The watcher waits
+until the Terminal app is closed and then posts a notification that it is safe to update now.
+
+  webview-guard            show the state (installed and released versions, watcher)
+  webview-guard check      check, start the watcher if an update is waiting, and write the state for shells and Forge
+  webview-guard test       post a test notification on the Googlebook
+
+Every adb and network call has a timeout. It reads the Googlebook's address from Sleep Guard's and Shadow Trackpad
+Fix's published files, like Forge does, and uses the shared adb server only for shell commands."""
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+import urllib.request
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ADB = shutil.which("adb") or os.path.expanduser("~/tools/android-sdk/platform-tools/adb")
+WEBVIEW = "com.google.android.webview"
+DEVICE_DIR = "/data/local/tmp/webview-guard"
+STATE_DIR = os.path.expanduser("~/.local/state/webview-guard")
+STATE = os.path.join(STATE_DIR, "state.json")
+ADDRESS_FILES = ("/mnt/shared/Documents/Sleep Guard/adb-port.txt", "/mnt/shared/Documents/Shadow Trackpad Fix/adb-port.txt")
+RELEASES = "https://versionhistory.googleapis.com/v1/chrome/platforms/webview/channels/{channel}/versions?pageSize=1"
+BETA = "com.google.android.webview.beta"
+CHANNELS = {WEBVIEW: "stable", BETA: "beta", "com.google.android.webview.dev": "dev", "com.google.android.webview.canary": "canary"}
+KEEP_STABLE = os.path.join(STATE_DIR, "keep-stable")   # if this file exists, the watcher never switches to Beta
+
+
+def adb(args, serial=None, timeout=30):
+    cmd = [ADB, "-P", "5037"] + (["-s", serial] if serial else []) + args
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout, stdin=subprocess.DEVNULL)
+        return r.returncode, (r.stdout or "") + (r.stderr or "")
+    except subprocess.TimeoutExpired:
+        return 124, "adb did not answer in time"
+
+
+def googlebook():
+    """The Googlebook's serial on the shared adb server, connecting through its published address if needed."""
+    def find():
+        rc, out = adb(["devices"], timeout=15)
+        for line in out.splitlines()[1:]:
+            parts = line.split()
+            if len(parts) == 2 and parts[1] == "device" and not parts[0].startswith(("127.", "emulator-", "192.168.240.")):
+                return parts[0]
+        return None
+    serial = find()
+    if serial:
+        return serial
+    for path in ADDRESS_FILES:
+        try:
+            with open(path) as fh:
+                addr = fh.read().strip()
+        except OSError:
+            continue
+        if re.match(r"^[0-9.]+:\d+$", addr):
+            adb(["connect", addr], timeout=15)
+            serial = find()
+            if serial:
+                return serial
+    return None
+
+
+def version_tuple(v):
+    return tuple(int(x) for x in re.findall(r"\d+", v or "")[:4])
+
+
+def installed(serial, pkg=WEBVIEW):
+    rc, out = adb(["shell", f"dumpsys package {pkg}"], serial, timeout=40)
+    name = re.search(r"versionName=(\S+)", out)
+    rc2, out2 = adb(["shell", f"pm list packages --show-versioncode {pkg}"], serial, timeout=20)
+    # The list also names packages that start with pkg (WebView Beta for WebView), so only the exact line counts.
+    code = re.search(r"^package:" + re.escape(pkg) + r" versionCode:(\d+)\s*$", out2, re.M)
+    return (name.group(1) if name else None), (code.group(1) if code else None)
+
+
+def provider(serial):
+    """The WebView package apps load now (Android's WebView provider)."""
+    rc, out = adb(["shell", "dumpsys webviewupdate"], serial, timeout=40)
+    m = re.search(r"Current WebView package \(name, version\): \(([^,]+),", out)
+    return m.group(1) if m else WEBVIEW
+
+
+def released(channel="stable"):
+    """The newest WebView Google has released on a channel (from Google's public version history), tried three times."""
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(RELEASES.format(channel=channel), headers={"User-Agent": "webview-guard"})
+            with urllib.request.urlopen(req, timeout=20) as r:
+                data = json.loads(r.read(100_000))
+            return data["versions"][0]["version"]
+        except (OSError, ValueError, KeyError, IndexError):
+            time.sleep(3 * (attempt + 1))
+    return None
+
+
+def watcher_running(serial):
+    """(running, its arguments, its state line)."""
+    rc, out = adb(["shell", f"p=$(cat {DEVICE_DIR}/pid 2>/dev/null); if [ -n \"$p\" ] && grep -q watch.sh /proc/$p/cmdline 2>/dev/null; "
+                            f"then echo \"running $(tr '\\0' ' ' < /proc/$p/cmdline)\"; else echo stopped; fi; cat {DEVICE_DIR}/state 2>/dev/null"],
+                  serial, timeout=20)
+    first, _, rest = out.partition("\n")
+    args = first.split("watch.sh", 1)[1].strip() if "watch.sh" in first else ""
+    return first.startswith("running"), args, rest.strip()
+
+
+def same_script(serial):
+    import hashlib
+    with open(os.path.join(HERE, "watch.sh"), "rb") as fh:
+        local = hashlib.md5(fh.read()).hexdigest()
+    rc, out = adb(["shell", f"md5sum {DEVICE_DIR}/watch.sh 2>/dev/null"], serial, timeout=15)
+    return out.split()[:1] == [local]
+
+
+def start_watcher(serial, args):
+    adb(["shell", f"mkdir -p {DEVICE_DIR}"], serial, timeout=15)
+    rc, out = adb(["push", os.path.join(HERE, "watch.sh"), f"{DEVICE_DIR}/watch.sh"], serial, timeout=30)
+    if rc != 0:
+        return False, out.strip()[-200:]
+    # setsid and nohup detach it, so it keeps running when this adb connection (and the VM) goes away.
+    rc, out = adb(["shell", f"setsid nohup sh {DEVICE_DIR}/watch.sh {' '.join(args)} >/dev/null 2>&1 </dev/null &"], serial, timeout=20)
+    time.sleep(1)
+    ok, _, _ = watcher_running(serial)
+    return ok, out.strip()
+
+
+def write_state(state):
+    os.makedirs(STATE_DIR, exist_ok=True)
+    with open(STATE + ".new", "w") as fh:
+        json.dump(state, fh)
+    os.replace(STATE + ".new", STATE)
+    # One line that new terminal shells show (empty when nothing is waiting).
+    banner = ""
+    if state.get("waiting"):
+        banner = (f"WebView Guard: Android System WebView {state.get('released')} is waiting. Updating it closes this "
+                  "Terminal, so update it only after you close the Terminal (the Googlebook will tell you when).\n")
+    with open(os.path.join(STATE_DIR, "banner.txt.new"), "w") as fh:
+        fh.write(banner)
+    os.replace(os.path.join(STATE_DIR, "banner.txt.new"), os.path.join(STATE_DIR, "banner.txt"))
+
+
+def check(start=True):
+    serial = googlebook()
+    state = {"time": time.time(), "googlebook": bool(serial)}
+    if not serial:
+        state["message"] = "The Googlebook is not reachable over adb, so WebView updates cannot be checked."
+        write_state(state)
+        return state
+    current = provider(serial)
+    beta_name, beta_code = installed(serial, BETA)
+    state.update({"provider": current, "beta_installed": bool(beta_code)})
+    want = None
+    if beta_code and current != BETA and not os.path.exists(KEEP_STABLE):
+        # Beta is installed: make it the WebView apps use, at the next moment the Terminal is closed.
+        want = ["switch", BETA]
+        state["message"] = ("WebView Beta is installed. The next time the Terminal is closed, the Googlebook switches apps "
+                            "to WebView Beta, so updates to the regular WebView can no longer close the Terminal.")
+    name, code = installed(serial, current)
+    latest = released(CHANNELS.get(current, "stable"))
+    state.update({"installed": name, "released": latest})
+    waiting = bool(name and latest and version_tuple(latest) > version_tuple(name))
+    state["waiting"] = waiting
+    if waiting and not want:
+        state["message"] = (f"{'WebView Beta' if current == BETA else 'Android System WebView'} {latest} is out (the "
+                            f"Googlebook has {name}). Updating it closes the Terminal and stops Linux, so update it after "
+                            "you close the Terminal; the Googlebook will tell you when it is safe.")
+        if code:
+            want = ["update", current, code, latest]
+    running, args, device_state = watcher_running(serial)
+    if start and running and (not same_script(serial) or (want and args != " ".join(want))):
+        # A newer watch.sh, or a different job: stop the running watcher (it exits within five seconds).
+        adb(["shell", f"kill $(cat {DEVICE_DIR}/pid)"], serial, timeout=15)
+        for _ in range(10):
+            time.sleep(1)
+            running, args, device_state = watcher_running(serial)
+            if not running:
+                break
+    if start and want and not running:
+        running, info = start_watcher(serial, want)
+        if not running:
+            state["error"] = "The watcher did not start: " + info
+    state["watcher"] = running
+    state["device_state"] = device_state
+    write_state(state)
+    return state
+
+
+def main(argv):
+    cmd = argv[0] if argv else "status"
+    if cmd == "check":
+        s = check(start=True)
+    elif cmd in ("status", "show"):
+        s = check(start=False)
+    elif cmd == "test":
+        serial = googlebook()
+        if not serial:
+            print("The Googlebook is not reachable over adb.")
+            return 1
+        rc, out = adb(["shell", "cmd notification post -u $(am get-current-user) -S bigtext -t 'WebView Guard is set up' webview-guard "
+                       "'WebView Guard will tell you here when it is safe to update Android System WebView, which is "
+                       "when the Terminal is closed.'"], serial, timeout=20)
+        print(out.strip() or "Posted a test notification on the Googlebook.")
+        return rc
+    else:
+        print(__doc__)
+        return 2
+    print(f"Apps use: {s.get('provider') or 'unknown'}; installed {s.get('installed') or 'unknown'}, released {s.get('released') or 'unknown'}"
+          + ("; WebView Beta is installed" if s.get("beta_installed") else ""))
+    if s.get("message"):
+        print(s["message"])
+    print(("An update is waiting. " if s.get("waiting") else "No update is waiting. ") +
+          ("The watcher on the Googlebook is running." if s.get("watcher") else "The watcher is not running."))
+    if s.get("device_state"):
+        print("Watcher: " + s["device_state"])
+    if s.get("error") or (not s.get("googlebook")):
+        print(s.get("error") or s.get("message"))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

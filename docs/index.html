@@ -778,6 +778,20 @@
             that closing the lid disables every wake lock, so Keep Awake cannot keep the virtual
             machine running while the lid is closed. The setting works as designed, and nothing
             needed to be fixed.</div></div>
+        <div class="fix"><div class="n"><a href="https://github.com/iamflying29-sketch/googlebook-projects/tree/main/smaller-fixes/webview-guard" target="_blank" rel="noopener">WebView Guard</a></div>
+          <div class="d">My Linux Terminal closed by itself in the middle of my work, and the Linux
+            virtual machine stopped with it. The Googlebook's own record of why the Terminal ended
+            showed that the Play Store had updated Android System WebView in that same second.
+            The Terminal draws its window with WebView, and Android closes every app that loaded
+            WebView when WebView is updated. The Play Store only waits while WebView itself is in
+            use, which it never is, and it does not offer its auto-update switch for the built-in
+            WebView. Research into Android's install system showed that nothing reachable over adb
+            can hold that update back. Android does accept WebView Beta as the WebView apps use,
+            though, and the Play Store lets me turn off its automatic updates. A small watcher on the
+            Googlebook switched to WebView Beta while the Terminal was closed, because switching
+            closes apps that use WebView too, and it now tells me when an update is waiting and the
+            Terminal is closed, so it is safe to install. Updates to the regular WebView no longer
+            touch the Terminal at all.</div></div>
         <div class="fix"><div class="n"><a href="https://github.com/iamflying29-sketch/googlebook-projects/tree/main/smaller-fixes/tmux-session-protection" target="_blank" rel="noopener">Terminal session protection (tmux)</a></div>
           <div class="d">Long jobs in the Linux Terminal, including Claude Code, were dying in the
             middle of their work. The Googlebook's logs showed why. About two minutes after the

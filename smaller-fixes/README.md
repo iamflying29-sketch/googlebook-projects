@@ -6,6 +6,7 @@ than the main projects, but each one started as a real problem that I traced to 
 | Write-up | Summary |
 |---|---|
 | [What the Linux Terminal's "Keep Awake" setting really does](terminal-keep-awake.md) | Keep Awake is not a screen setting. It holds a partial wake lock that keeps the Linux virtual machine running after you leave the Terminal or the screen turns off, and it switches itself back to Off when its timer runs out. The screen turns off because of the normal GooglebookOS screen timeout. Nothing needed to be fixed. |
+| [WebView Guard: WebView updates no longer close the Terminal](webview-guard/README.md) | When the Play Store updates Android System WebView, Android closes every app that uses it, and the Linux Terminal draws its window with WebView, so the whole Linux virtual machine stopped. Nothing on the Googlebook can hold that update back, so the Terminal now uses WebView Beta, whose updates I control. A small watcher on the Googlebook made the switch while the Terminal was closed and tells me when it is safe to update. Includes the scripts. |
 | [Terminal session protection with tmux](tmux-session-protection/README.md) | The Terminal app's connection to the Linux virtual machine sometimes drops while the app is in the background, and the terminal server then kills the shell and every program in it. Running every interactive shell inside tmux keeps those programs alive, and a new window re-attaches the session. Includes the tmux configuration and the `~/.profile` block. |
 
 General setup steps for the Linux Terminal and adb are in the

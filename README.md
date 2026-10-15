@@ -46,7 +46,8 @@ the Android SDK build tools.
 ## Smaller fixes
 
 One-off diagnoses and fixes are written up in **[smaller-fixes/](smaller-fixes/)**, including what the Linux
-Terminal's "Keep Awake" setting really does and how I protect long-running Terminal sessions with tmux.
+Terminal's "Keep Awake" setting really does, how I protect long-running Terminal sessions with tmux, and how I stopped
+WebView updates from closing the Terminal.
 
 ## Design principles
 

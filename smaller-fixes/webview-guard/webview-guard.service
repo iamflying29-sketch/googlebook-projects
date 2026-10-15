@@ -1,0 +1,9 @@
+[Unit]
+Description=WebView Guard: offer WebView updates only when the Terminal is closed
+
+[Service]
+Type=oneshot
+ExecStart=%h/projects/webview-guard/webview-guard check
+TimeoutStartSec=300
+MemoryMax=128M
+Nice=10
