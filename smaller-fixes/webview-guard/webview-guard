@@ -67,6 +67,15 @@ def googlebook():
             serial = find()
             if serial:
                 return serial
+            # The Googlebook's Wireless debugging port moves on every Wi-Fi re-join, and a running adb server keeps
+            # refusing the new port until it is restarted (found 2026-10-16: the guard could not reach the Googlebook
+            # after a VM restart for this reason).
+            adb(["kill-server"], timeout=15)
+            time.sleep(2)
+            adb(["connect", addr], timeout=20)
+            serial = find()
+            if serial:
+                return serial
     return None
 
 
