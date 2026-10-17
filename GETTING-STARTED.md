@@ -58,6 +58,19 @@ address yourself.
 
    `adb devices` should list your Googlebook with the word `device` after it.
 
+6. **Turn on "Disable adb authorization timeout".** It is on the same Developer options screen, a little below
+   Wireless debugging. Leave it on for good. Without it, Android silently forgets every debugging pairing that has not
+   connected for 7 days, and the paired entry disappears from the Wireless debugging screen. That happened to me on
+   2026-10-17: the keys of Sleep Guard and Shadow Trackpad Fix were gone after exactly 7 days, both apps stopped
+   working, and nothing had warned me. The same switch can be set from the Linux Terminal:
+
+   ```bash
+   adb shell settings put global adb_allowed_connection_time 0
+   ```
+
+   Sleep Guard and Shadow Trackpad Fix now set it themselves whenever their connection works, but turn it on yourself
+   first, so your own `adb` pairing survives as well.
+
 You only pair once. The connection port changes when Wireless debugging restarts, for example after a reboot or
 after the Wi-Fi drops, so you may need to run `adb connect` again with the new port shown on the Wireless debugging
 screen. Some projects, such as Sleep Guard and Shadow Trackpad Fix, handle reconnecting by themselves.

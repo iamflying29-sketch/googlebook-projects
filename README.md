@@ -29,6 +29,10 @@ Before you set up any project, read the **[Getting started guide](GETTING-STARTE
 Linux Terminal, install adb, connect to GooglebookOS over Wireless debugging, find your Android user ID, and install
 the Android SDK build tools.
 
+**Turn on "Disable adb authorization timeout" in Developer options and leave it on.** Otherwise Android forgets every
+Wireless debugging pairing that has not connected for 7 days, without a word: on 2026-10-17 the pairings of Sleep
+Guard and Shadow Trackpad Fix vanished that way and both stopped working. The guide shows where the switch is.
+
 ## Projects
 
 | Project | The problem | What I built |

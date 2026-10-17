@@ -288,6 +288,11 @@
           keeps itself running. Before you set up any project, read the
           <a href="https://github.com/iamflying29-sketch/googlebook-projects/blob/main/GETTING-STARTED.md" target="_blank" rel="noopener">Getting
           started guide</a>.</p>
+        <p><b>Important: turn on "Disable adb authorization timeout" in Developer options and leave it on.</b>
+          Otherwise Android forgets every Wireless debugging pairing that has not connected for 7 days, without
+          a word. On 2026-10-17 the pairings of Sleep Guard and Shadow Trackpad Fix vanished that way and both
+          apps stopped working. Both now switch the timeout off themselves whenever they connect, but your own
+          adb pairing needs the switch too. The guide shows where it is.</p>
       </div>
 
       <div class="grid">
