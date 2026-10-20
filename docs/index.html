@@ -726,8 +726,8 @@
               TV screens without a device, real devices with the makers' own
               software from Google's and Samsung's device labs, source control, a terminal,
               and native app windows, one per project. A GPU engine built into the app
-              runs the same model on the laptop's Intel graphics, and I can paste screenshots, which a vision
-              model reads for Llama. I can watch the two models work together in the chat, step by step.
+              runs Llama or Qwen3.5 4B on the laptop's Intel graphics, and I can paste screenshots, which
+              Qwen3.5 on the engine looks at itself, or a vision model reads for Llama. I can watch the two models work together in the chat, step by step.
               Nothing I type leaves the machine.</p>
           </div>
           <div class="split">
@@ -743,8 +743,10 @@
                 flipping the flag needs root.</p>
             </div>
             <div class="ps solution"><span class="lab">Solution</span>
-              <p>A pure Python server in the VM serves the IDE (built on the Monaco editor from
-                VS Code) and runs the agent with a tool protocol an 8B model follows reliably,
+              <p>A native Kotlin app on the Android side is the IDE: an editor with language servers,
+                AI completions, Ctrl K and an inline review of every change, the terminal and the chat,
+                with no browser and no WebView. A pure Python server in the VM runs the agent with a
+                tool protocol an 8B model follows reliably,
                 checkpoints for every change, automatic syntax checks after every edit, and a
                 prompt cache strategy that makes follow-ups answer in seconds. Memory guards show
                 the VM's free RAM, refuse to load the model into a full VM and unload it before
