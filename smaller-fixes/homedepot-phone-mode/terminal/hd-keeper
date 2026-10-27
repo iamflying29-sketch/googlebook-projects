@@ -1,0 +1,85 @@
+#!/bin/bash
+# hd-keeper - runs inside the Googlebook's Linux Terminal (Debian VM) as a
+# systemd service.
+#
+# Uses this VM's own adb pairing to reach the Googlebook's Android side over
+# Wireless debugging, and keeps android/hd-phone.sh running there (restarting
+# it after a reboot, a crash, or when the script changes). Needs Wireless
+# debugging on; Android turns it off at every reboot.
+#
+# Settings come from /etc/default/hd-keeper (written by install.sh):
+#   HD_HOST   Android's IP as seen from the VM (also tries the VM's gateway)
+#   HD_MODEL  ro.product.model of the Android device to manage
+
+[ -f /etc/default/hd-keeper ] && . /etc/default/hd-keeper
+MODEL=${HD_MODEL:-Lenovo Googlebook 15}
+SCRIPT=/usr/local/share/hd-keeper/hd-phone.sh
+STATE=/var/lib/hd-keeper
+REMOTE=/data/local/tmp/hd-phone.sh
+
+log() { echo "$(date '+%F %T') $*"; }
+
+# Prints the adb serial of the managed device if adb is connected to it.
+connected() {
+  local d
+  for d in $(adb devices | awk 'NR > 1 && $2 == "device" {print $1}'); do
+    [ "$(timeout 10 adb -s "$d" shell getprop ro.product.model 2>/dev/null | tr -d '\r')" = "$MODEL" ] \
+      && { echo "$d"; return 0; }
+  done
+  return 1
+}
+
+hosts() {
+  { cat "$STATE/host" 2>/dev/null; echo "$HD_HOST"; ip route | awk '/^default/ {print $3}'; } \
+    | awk 'NF && !seen[$0]++'
+}
+
+# The Wireless debugging port changes whenever it is switched on, so scan for
+# it and try each open port.
+find_and_connect() {
+  local h p d
+  for h in $(hosts); do
+    for p in $(timeout 60 nc -z -v -n -w 1 "$h" 32768-60999 2>&1 \
+               | grep -oE '([0-9]+) port \[|\] ([0-9]+) \(.*open' | grep -oE '[0-9]+' ); do
+      if timeout 10 adb connect "$h:$p" 2>/dev/null | grep -q '^connected\|already connected'; then
+        d="$h:$p"
+        if [ "$(timeout 10 adb -s "$d" shell getprop ro.product.model 2>/dev/null | tr -d '\r')" = "$MODEL" ]; then
+          echo "$h" > "$STATE/host"
+          echo "$d"; return 0
+        fi
+        adb disconnect "$d" > /dev/null 2>&1
+      fi
+    done
+  done
+  return 1
+}
+
+# Starts the watcher on Android unless the current version is already running.
+ensure_watcher() {
+  local d=$1 want have alive
+  want=$(sha256sum < "$SCRIPT" | cut -c1-64)
+  have=$(timeout 15 adb -s "$d" shell "sha256sum $REMOTE 2>/dev/null" | cut -c1-64)
+  alive=$(timeout 15 adb -s "$d" shell 'p=$(cat /data/local/tmp/hd-phone.pid 2>/dev/null)
+    [ -n "$p" ] && grep -q hd-phone /proc/$p/cmdline 2>/dev/null && echo yes' | tr -d '\r')
+  [ "$alive" = yes ] && [ "$want" = "$have" ] && return 0
+  timeout 30 adb -s "$d" push "$SCRIPT" "$REMOTE" > /dev/null || return 1
+  timeout 15 adb -s "$d" shell 'p=$(cat /data/local/tmp/hd-phone.pid 2>/dev/null)
+    [ -n "$p" ] && grep -q hd-phone /proc/$p/cmdline 2>/dev/null && kill $p
+    setsid nohup sh /data/local/tmp/hd-phone.sh > /dev/null 2>&1 < /dev/null &' > /dev/null
+  log "watcher started on $d"
+}
+
+mkdir -p "$STATE"
+log "hd-keeper started (model: $MODEL)"
+last_scan=0
+while true; do
+  d=$(connected)
+  # Port scans are cheap but not free: at most one every 2 minutes.
+  if [ -z "$d" ] && [ $(( $(date +%s) - last_scan )) -ge 120 ]; then
+    last_scan=$(date +%s)
+    d=$(find_and_connect)
+    [ -n "$d" ] && log "connected to $d"
+  fi
+  [ -n "$d" ] && ensure_watcher "$d"
+  sleep 30
+done

@@ -824,6 +824,16 @@
             session. tmux cannot help if the whole virtual machine stops, for example after a
             restart or when an update closes the Terminal app. Because mouse mode is on, text is
             selected by holding Shift while dragging.</div></div>
+        <div class="fix"><div class="n"><a href="https://github.com/iamflying29-sketch/googlebook-projects/tree/main/smaller-fixes/homedepot-phone-mode" target="_blank" rel="noopener">Home Depot app phone mode</a></div>
+          <div class="d">The Home Depot app refused to run on my Googlebook and showed &quot;The Home Depot
+            app is no longer supported for tablet devices.&quot; The app treats any window 600
+            dp or wider as a tablet, and because Android 16 and later ignore its portrait-only
+            setting on large screens, GooglebookOS opened it in a wide landscape window. The fix
+            keeps the app in a tall, phone-sized window. A one-time script performs real mouse
+            drags so that GooglebookOS remembers a 448 dp wide window for the app, a small
+            watcher snaps any window that grows too wide back to phone size within about a
+            second, and a keeper in the Linux Terminal keeps the watcher running after reboots.
+            The same approach works for other phone-only apps.</div></div>
       </div>
     </div>
   </section>

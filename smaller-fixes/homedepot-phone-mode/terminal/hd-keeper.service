@@ -1,0 +1,14 @@
+[Unit]
+Description=Keep the Home Depot phone-window watcher running on the Googlebook's Android side
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=droid
+Environment=HOME=/home/droid
+ExecStart=/usr/local/bin/hd-keeper
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
