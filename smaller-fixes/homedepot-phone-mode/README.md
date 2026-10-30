@@ -30,7 +30,7 @@ The fix has two parts, plus a keeper that makes it survive reboots.
 |---|---|
 | **Remembered window size** (`tools/set-phone-window.sh`, run once) | GooglebookOS's desktop windowing remembers each app's last window size, but only when a person drags or resizes the window. It stores the size as `rememberedBoundsRatioByPackageName` in WMShell and saves it to disk, so it survives reboots. `am task resize` does not count, so the script performs real mouse drags with `input mouse motionevent` to make the window tall, centered and 448 dp wide. From then on, the app opens phone-sized. |
 | **Watcher** (`android/hd-phone.sh`) | A small shell loop that runs on GooglebookOS as the adb shell user. If any Home Depot window becomes 600 dp or wider, for example after maximizing, dragging it wider or a launch at the default size, it snaps the window back to phone size within about a second. Then it drags the window's left edge with a real mouse drag, so GooglebookOS saves the phone size again. While the app is open, it also checks the saved size every 30 seconds and drags again if needed, and after 3 failed drags in a row it waits 10 minutes. The app then lays itself out as a phone again. Since October 30, 2026 it also handles a Home Depot task that has left the desktop altogether and become a fullscreen task, which happens when the app is brought to the front while no desktop window is showing, for example from the lock screen. A fullscreen task is always a tablet to the app, and `am task resize` cannot change that, so the watcher asks the desktop shell for the active desk, falls back to the desk list when the shell reports none, checks that the id is a number from the system's own list, and only then moves the task back onto the desk with `moveTaskToDesk`, the same move as the window menu's own entry. It only does this for a visible task, at most once a minute, and on any doubt it writes a line to its log and does nothing. While the app is not running, the watcher only does a cheap `pidof` check. |
-| **Keeper** (`terminal/hd-keeper`, a systemd service) | Runs in the Googlebook's own **Linux Terminal** (the Debian virtual machine). It uses the Terminal's own adb pairing with GooglebookOS, so it needs no other computer. Every 30 seconds, it checks that the watcher is running, and it restarts the watcher after a reboot, after a crash, or when the script has been updated. If the Wireless debugging port has changed, it finds the new port by scanning. |
+| **Keeper** (`terminal/hd-keeper`, a systemd service) | Runs in the Googlebook's own **Linux Terminal** (the Debian virtual machine). It has its own adb pairing key and its own private adb server on port 5040, separate from the Terminal's normal adb and from every other tool, so nothing it does can disturb another tool's connection, and it needs no other computer. Every 30 seconds, it checks that the watcher is running and that the watcher's heartbeat is fresh, and it restarts the watcher after a reboot, after a crash, when the watcher stops responding, or when the script has been updated. If the Wireless debugging port has changed, it finds the new port by scanning. Every command it and the watcher run has a time limit, and the keeper has a watchdog of its own: if its loop ever stops for 20 minutes, it resets its private adb server and systemd starts it again. A restart stops only the keeper itself. |
 
 Maximizing the app gives a full-height phone window, not a full-screen phone layout, because a full-width window is
 always a tablet to the app.
@@ -49,21 +49,19 @@ in the [Getting Started guide](https://github.com/iamflying29-sketch/googlebook-
    cd googlebook-projects/smaller-fixes/homedepot-phone-mode
    ```
 
-2. **Pair the Terminal's adb with GooglebookOS (once).**
-   Open **Settings > System > Developer options > Wireless debugging**, turn it on, and tap
-   **Pair device with pairing code**. Then run these commands in the Terminal:
-   ```bash
-   sudo apt-get install -y adb      # if not installed yet
-   adb pair <ip>:<pairing-port> <6-digit-code>
-   adb connect <ip>:<port>          # port shown on the Wireless debugging screen
-   adb devices                      # should list the device as "device"
-   ```
-   `<ip>` is the Googlebook's Wi-Fi IP address, as shown on that screen.
-
-3. **Install the keeper.** It installs and starts the watcher too.
+2. **Install the keeper.**
    ```bash
    bash terminal/install.sh
    ```
+
+3. **Pair the keeper's own key (once).** Open **Settings > System > Developer options > Wireless
+   debugging**, turn it on, and tap **Pair device with pairing code**. Keep that dialog open and run:
+   ```bash
+   hd-keeper pair <6-digit-code> <ip>:<pairing-port>
+   ```
+   `<ip>` and `<pairing-port>` are the address and port shown in that dialog. The keeper creates its own key,
+   named HomeDepotPhoneMode, pairs it on its own private adb server, connects within about a minute, and starts
+   the watcher. Your other adb pairings are not touched.
 
 4. **Set the remembered phone window (once).** Close the Home Depot app if it is open, then run:
    ```bash
@@ -90,7 +88,8 @@ either step, so the app keeps opening phone-sized.
 ```bash
 systemctl status hd-keeper
 journalctl -u hd-keeper -n 50
-adb shell cat /data/local/tmp/hd-phone.log     # resizes done by the watcher
+adb shell cat /data/local/tmp/hd-phone.log     # resizes and rescues done by the watcher
+adb shell cat /data/local/tmp/hd-phone.beat    # the watcher's heartbeat, a time in seconds
 adb shell 'dumpsys activity service SystemUIService WMShell' | grep 'com.thehomedepot ->'
 ```
 

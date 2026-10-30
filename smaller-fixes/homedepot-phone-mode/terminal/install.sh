@@ -30,3 +30,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now hd-keeper
 sudo systemctl restart hd-keeper
 echo "hd-keeper installed. Status: systemctl status hd-keeper   Log: journalctl -u hd-keeper"
+[ -f /var/lib/hd-keeper/adbhome/.android/adbkey ] || echo "Next: pair the keeper's own key with  hd-keeper pair CODE IP:PAIRPORT  (README, step 3)."

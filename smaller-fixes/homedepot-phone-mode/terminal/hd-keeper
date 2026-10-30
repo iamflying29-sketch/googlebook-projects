@@ -17,12 +17,44 @@ SCRIPT=/usr/local/share/hd-keeper/hd-phone.sh
 STATE=/var/lib/hd-keeper
 REMOTE=/data/local/tmp/hd-phone.sh
 
+# The keeper has its own adb pairing key and its own private adb server, so nothing it does (its
+# connects, its port search, its restarts) ever touches the Terminal's normal adb server or the
+# pairing of any other tool. adb reads its key from $HOME/.android, so HOME points at the keeper's
+# own folder for every adb call, and the private server listens on its own port.
+export HOME=$STATE/adbhome
+export ANDROID_ADB_SERVER_PORT=${HD_ADB_PORT:-5040}
+KEYNAME=HomeDepotPhoneMode@googlebook
+
 log() { echo "$(date '+%F %T') $*"; }
+
+# hd-keeper pair CODE IP:PAIRPORT
+# Pairs the keeper's own key once (Wireless debugging > Pair device with pairing code).
+if [ "${1:-}" = pair ]; then
+  code=${2:-}; paddr=${3:-}
+  if [ -z "$code" ] || [ -z "$paddr" ]; then
+    echo "Usage: hd-keeper pair CODE IP:PAIRPORT"
+    echo "On the Googlebook: Settings > System > Developer options > Wireless debugging >"
+    echo "'Pair device with pairing code', and keep that dialog open."
+    exit 2
+  fi
+  mkdir -p "$HOME/.android" && chmod 700 "$HOME" "$HOME/.android"
+  if [ ! -f "$HOME/.android/adbkey" ]; then
+    timeout 30 adb keygen "$HOME/.android/adbkey" > /dev/null 2>&1
+    echo "$(awk '{print $1}' "$HOME/.android/adbkey.pub") $KEYNAME" > "$HOME/.android/adbkey.pub"
+  fi
+  result=$(timeout 40 adb pair "$paddr" "$code" 2>&1)
+  echo "$result"
+  case "$result" in *"Successfully paired"*) ;; *) echo "Pairing failed, so nothing changed. Try again with a fresh code."; exit 1;; esac
+  # Stop the private server this command started, so the service starts its own.
+  timeout 10 adb kill-server > /dev/null 2>&1
+  echo "Paired. The keeper connects on its own within a minute."
+  exit 0
+fi
 
 # Prints the adb serial of the managed device if adb is connected to it.
 connected() {
   local d
-  for d in $(adb devices | awk 'NR > 1 && $2 == "device" {print $1}'); do
+  for d in $(timeout 10 adb devices | awk 'NR > 1 && $2 == "device" {print $1}'); do
     [ "$(timeout 10 adb -s "$d" shell getprop ro.product.model 2>/dev/null | tr -d '\r')" = "$MODEL" ] \
       && { echo "$d"; return 0; }
   done
@@ -59,9 +91,15 @@ ensure_watcher() {
   local d=$1 want have alive
   want=$(sha256sum < "$SCRIPT" | cut -c1-64)
   have=$(timeout 15 adb -s "$d" shell "sha256sum $REMOTE 2>/dev/null" | cut -c1-64)
+  # "yes" when the watcher runs and its heartbeat is under 2 minutes old, "stale" when it runs
+  # but has stopped looping (a hung watcher is restarted like a missing one).
   alive=$(timeout 15 adb -s "$d" shell 'p=$(cat /data/local/tmp/hd-phone.pid 2>/dev/null)
-    [ -n "$p" ] && grep -q hd-phone /proc/$p/cmdline 2>/dev/null && echo yes' | tr -d '\r')
+    b=$(cat /data/local/tmp/hd-phone.beat 2>/dev/null)
+    if [ -n "$p" ] && grep -q hd-phone /proc/$p/cmdline 2>/dev/null; then
+      case "$b" in ""|*[!0-9]*) echo stale;; *) [ $(( $(date +%s) - b )) -lt 120 ] && echo yes || echo stale;; esac
+    fi' | tr -d '\r')
   [ "$alive" = yes ] && [ "$want" = "$have" ] && return 0
+  [ "$alive" = stale ] && [ "$want" = "$have" ] && log "the watcher stopped responding; restarting it"
   timeout 30 adb -s "$d" push "$SCRIPT" "$REMOTE" > /dev/null || return 1
   timeout 15 adb -s "$d" shell 'p=$(cat /data/local/tmp/hd-phone.pid 2>/dev/null)
     [ -n "$p" ] && grep -q hd-phone /proc/$p/cmdline 2>/dev/null && kill $p
@@ -70,9 +108,31 @@ ensure_watcher() {
 }
 
 mkdir -p "$STATE"
-log "hd-keeper started (model: $MODEL)"
+log "hd-keeper started (model: $MODEL, own adb server on port $ANDROID_ADB_SERVER_PORT)"
+[ -f "$HOME/.android/adbkey" ] || log "the keeper's own key is not paired yet: run  hd-keeper pair CODE IP:PAIRPORT"
+
+# Watchdog: the loop below writes a heartbeat on every pass. If it ever stops for 20 minutes
+# (far longer than the slowest normal pass, a full port search), the keeper ends itself and
+# systemd starts it again. The keeper holds no locks or device state, so nothing is left behind.
+date +%s > "$STATE/beat"
+main=$$
+(
+  while sleep 60; do
+    kill -0 "$main" 2>/dev/null || exit 0
+    b=$(cat "$STATE/beat" 2>/dev/null)
+    case "$b" in ""|*[!0-9]*) b=0;; esac
+    if [ $(( $(date +%s) - b )) -gt 1200 ]; then
+      log "watchdog: the keeper stopped for 20 minutes; restarting it"
+      timeout 10 adb kill-server > /dev/null 2>&1   # only the keeper's own private server
+      kill -TERM "$main" 2>/dev/null; sleep 5; kill -KILL "$main" 2>/dev/null
+      exit 0
+    fi
+  done
+) &
+
 last_scan=0
 while true; do
+  date +%s > "$STATE/beat"
   d=$(connected)
   # Port scans are cheap but not free: at most one every 2 minutes.
   if [ -z "$d" ] && [ $(( $(date +%s) - last_scan )) -ge 120 ]; then
