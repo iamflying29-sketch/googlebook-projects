@@ -550,8 +550,9 @@
             <p>It also shows Home Depot order updates as their own notifications. The Home Depot
               app's own notifications never reach my Googlebook, so when an order update email from
               Home Depot arrives in any email app, the Keeper also shows it as a Home Depot
-              notification in the brand's colors that opens the Home Depot app when I tap it. The
-              email's own notification still arrives as usual.</p>
+              notification in the brand's colors. When I tap it, my Home Depot Helper, described in the next
+              card, opens the exact order in the Home Depot app. Without the helper the tap opens the
+              Home Depot app. The email's own notification still arrives as usual.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -580,6 +581,47 @@
                 and that is the work this project invites other developers to do.</p>
               <p>The Keeper cannot make a closed web app notify. For Gmail, that part is handled by
                 Gmail Go, as the card above explains.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-homedepot-helper" target="_blank" rel="noopener">Home Depot Helper</a></h3><span class="kind">open-source app</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>Home Depot Helper is a small open-source Android app that takes a Home Depot order
+              notification from my Notification Keeper to the exact place in the Home Depot app. An
+              email that names an order number, such as shipped, out for delivery, delivered,
+              rescheduled or cancelled, opens that order's own details page with its status timeline
+              and return barcode. An order email without a number in the preview opens my purchase
+              history, newest order first. A sign-in verification code email copies the code and
+              types it into the app's code field for me. Anything else simply opens the app. It has
+              no internet permission and stores nothing but one line about its last action.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>The Keeper's Home Depot notifications could only open the Home Depot app, and I
+                still had to find the order myself. A verification code arrived as an email that I
+                had to read, remember and type. A notification carries only the email's subject and
+                preview, so whatever opens the right place has to work from those two lines alone.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>I read the Home Depot app's manifest and followed the links behind the buttons in my
+                own Home Depot emails. The app handles its website's account addresses natively, and
+                "Manage Order" ends at the order details address for one order number, while "Check
+                Order Status" ends at the purchase history. The helper builds the same address from
+                the order number in the notification and hands it to the Home Depot app, so orders
+                need no screen tapping at all. The Keeper only passes the subject and preview to the
+                helper, and keeps working exactly as before when the helper is not installed.</p>
+              <p>A verification code cannot be opened by a link, so the helper has one accessibility
+                service for that. It receives events only from the Home Depot app, looks at the screen
+                only while a code is waiting, prefers a field whose label mentions a code, never types
+                into a search, email or password field, performs no gestures, and gives up quietly
+                after 45 seconds with the code still on the clipboard. Android switches an
+                accessibility service off after every update, so with one permission granted over adb
+                the helper switches its own service back on by itself. I tested a card tap landing on
+                the order page and the code typing on screen, and the typing check had to learn that a
+                web page may reformat the digits it was given.</p>
             </div>
           </div>
         </article>
@@ -838,10 +880,15 @@
             drags so that GooglebookOS remembers a 448 dp wide window for the app, a small
             watcher snaps any window that grows too wide back to phone size within about a
             second, and a keeper in the Linux Terminal keeps the watcher running after reboots.
-            The same approach works for other phone-only apps. Separately, the Home Depot app's own
-            notifications never reach the Googlebook either, so my Notification Keeper app now turns
-            Home Depot order update emails into Home Depot notifications. The Notification Keeper card
-            above describes that.</div></div>
+            Since October 30, 2026 the watcher also rescues a Home Depot window that has become a
+            fullscreen task, which happens when the app is brought to the front while no desktop
+            window is showing, for example from the lock screen. It asks the desktop shell for the
+            desk id, checks it against the system's own list, and moves the task back onto the desk,
+            the same move as the window menu's own entry. The same approach works for other phone-only
+            apps. Separately, the Home Depot app's own notifications never reach the Googlebook either,
+            so my Notification Keeper app turns Home Depot order update emails into Home Depot
+            notifications, and my Home Depot Helper opens the exact order from them. The Notification
+            Keeper and Home Depot Helper cards above describe that.</div></div>
       </div>
     </div>
   </section>

@@ -49,6 +49,28 @@ fix() {
   input mouse motionevent UP $L $mid
 }
 
+# A Home Depot task that is a FULLSCREEN task instead of a desktop window is a tablet to the
+# app, and `am task resize` cannot change that. Move it back onto the active desk, which is
+# what the window's own menu does; the loop above then resizes it like any wide window.
+# Every id comes from the system itself and is checked before use; on any doubt, do nothing.
+WMS="dumpsys activity service SystemUIService WMShell desktopmode"
+desk_answer() {   # prints the one number (or list) the desktopmode command answered with
+  $WMS "$@" 2>/dev/null | sed -n 's/^ *\(-\{0,1\}[0-9][0-9,]*\) *$/\1/p' | head -1
+}
+rescue() {        # $1 = task id of a fullscreen task of $P
+  # While a fullscreen task is on top the system reports no active desk (-1), so fall back
+  # to the desk list, but only when it names exactly one desk.
+  ids=$(desk_answer getDeskIds 0)
+  desk=$(desk_answer getActiveDeskId 0)
+  case "$desk" in ''|-1|*[!0-9]*) desk=$ids;; esac
+  case "$desk" in ''|*[!0-9]*)
+    echo "$(date) fullscreen task $1: no single desk to move it to (active '$desk', list '$ids'), not moving it" >> $LOG; return 1;; esac
+  case ",$ids," in *",$desk,"*) ;; *)
+    echo "$(date) fullscreen task $1: desk $desk is not in the desk list '$ids', not moving it" >> $LOG; return 1;; esac
+  $WMS moveTaskToDesk $1 $desk > /dev/null 2>&1
+  echo "$(date) moved fullscreen task $1 back onto desk $desk" >> $LOG
+}
+
 # Width in px of the saved window size, or nothing if none is saved.
 saved_width() {
   dumpsys activity service SystemUIService WMShell 2>/dev/null |
@@ -61,17 +83,33 @@ saved_width() {
 [ -f $LOG ] && [ $(wc -l < $LOG) -gt 500 ] && tail -100 $LOG > $LOG.tmp && mv $LOG.tmp $LOG
 echo "$(date) start: $P -> $L,$T,$R,$B (display ${W}x${H} @${DPI}dpi, limit ${limit}px)" >> $LOG
 
-next_check=0; fails=0
+next_check=0; fails=0; last_rescued=; last_rescue_time=0
 while true; do
   # Cheap check first; only dump window state while the app is running.
   if pidof $P > /dev/null 2>&1; then
     # "<taskId> <left> <top> <right> <bottom>" per freeform task of $P.
-    tasks=$(dumpsys activity activities 2>/dev/null | awk -v p="$P" '
+    dump=$(dumpsys activity activities 2>/dev/null)
+    tasks=$(echo "$dump" | awk -v p="$P" '
       $0 ~ "\\* Task\\{.* A=[0-9]+:" p " .*mode=freeform" {
         t = $0; sub(/.* #/, "", t); sub(/ .*/, "", t); want = 1; next }
       want && /mBounds=Rect/ {
         b = $0; gsub(/.*Rect\(|\).*/, "", b); gsub(/[ ,-]+/, " ", b)
         print t, b; want = 0 }')
+    # Visible fullscreen tasks of $P (not desktop windows): move them back onto the desk,
+    # at most once a minute per task, so a failing move can never loop. A hidden one is left
+    # alone until it is shown, so no window ever pops up on its own.
+    full=$(echo "$dump" | awk -v p="$P" '
+      $0 ~ "\\* Task\\{.* A=[0-9]+:" p " .*visible=true.*mode=fullscreen" {
+        t = $0; sub(/.* #/, "", t); sub(/ .*/, "", t); print t }')
+    for id in $full; do
+      case "$id" in ''|*[!0-9]*) continue;; esac
+      now=$(date +%s)
+      if [ "$id" != "$last_rescued" ] || [ $((now - last_rescue_time)) -ge 60 ]; then
+        last_rescued=$id; last_rescue_time=$now
+        rescue $id
+      fi
+    done
+
     echo "$tasks" | while read id l t r b; do
       [ -n "$b" ] || continue
       w=$((r - l)); h=$((b - t)); m=$w; [ $h -lt $m ] && m=$h

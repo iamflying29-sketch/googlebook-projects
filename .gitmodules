@@ -25,3 +25,6 @@
 [submodule "projects/forge-ide"]
 	path = projects/forge-ide
 	url = https://github.com/iamflying29-sketch/googlebook-forge-ide.git
+[submodule "projects/homedepot-helper"]
+	path = projects/homedepot-helper
+	url = https://github.com/iamflying29-sketch/googlebook-homedepot-helper.git
