@@ -487,8 +487,8 @@
             <p>It has four parts. A 2021 version of Google's Gmail Go app works only as the engine
               that receives Google's push messages. Notification Keeper turns each of its alerts into
               a proper notification. A helper inside Notification Keeper carries out a tap, Reply or
-              Delete in the Gmail web app window. A small background service in the Linux Terminal
-              handles Mark as read without opening any window.</p>
+              Delete in the Gmail web app window. A small background service that runs on GooglebookOS
+              itself handles Mark as read without opening any window.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -521,13 +521,16 @@
                 uses Gmail's own menu to reply or delete. It only touches the screen when Gmail is the
                 active window and nothing covers it. For Reply and Delete, it removes the notification
                 only after the action succeeds. Mark as read works without opening anything. The background service
-                in the Linux Terminal keeps a hidden browser signed in to each Gmail account, finds
+                runs on the Googlebook itself and keeps a hidden browser signed in to each Gmail account, finds
                 the unread email by sender address, subject and time, and clicks Gmail's own Mark as
-                read button. Each one takes about 4 to 6 seconds. A settings guard saves my Gmail notification settings and puts them back if they are ever reset.</p>
+                read button. Each one takes about 4 to 6 seconds. It started out in the Linux Terminal, but the
+                Terminal stops whenever its window closes, so it now runs on GooglebookOS with the same browser and
+                sign-ins, and a small app starts it again after every restart. A settings guard saves my Gmail notification settings and puts them back if they are ever reset.</p>
               <p>Every part was proven on October 12, 2026, including notifications with Gmail Go
-                closed, Mark as read on more than one account, and tap, Reply and Delete. Archive was left out
-                because Android shows at most three buttons on a notification. Mark as read currently
-                needs the Linux Terminal running with Wireless debugging, and it works for @gmail.com
+                closed, Mark as read on more than one account, and tap, Reply and Delete. Mark as read on
+                GooglebookOS itself, with the Linux Terminal closed, was proven on November 3, 2026. Archive was
+                left out because Android shows at most three buttons on a notification. Mark as read needs
+                Wireless debugging on so the app can start it after a restart, and it works for @gmail.com
                 and @googlemail.com accounts only.</p>
             </div>
           </div>
