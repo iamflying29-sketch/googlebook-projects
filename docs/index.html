@@ -678,7 +678,8 @@
               "unknown" next to a real case level, a small helper on each device puts back the
               latest real levels the earbuds reported, within a fraction of a second. A native
               Android app starts the helper again after every restart, with no Linux Terminal
-              involved.</p>
+              involved. It also puts my Pixel Buds back on LE Audio's auto-connect list after each
+              Bluetooth start, so they keep connecting by themselves after a restart.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -690,6 +691,10 @@
                 earbuds as unknown and charging while the case had a real level. The earbuds kept
                 sending real levels before and after it, so the problem was one bad kind of report,
                 not empty batteries or a broken connection.</p>
+              <p>After some restarts, the earbuds also stopped connecting by themselves. The boot
+                log showed that Bluetooth's start for Android's system user took them off LE Audio's
+                auto-connect list, and my own user's step that puts them back ran 2 milliseconds
+                before they were loaded.</p>
             </div>
             <div class="ps solution"><span class="lab">Solution</span>
               <p>The helper runs as the adb shell user, which may read, change and watch the stored
@@ -699,8 +704,12 @@
                 never makes up a number.</p>
               <p>I traced Google's Batteries widget to these stored values through the Settings app.
                 In an imitation test on both devices, the helper fixed the bad values in about a
-                tenth of a second or less. Whether the Fast Pair pop-up itself follows the corrected
-                values is not verified yet.</p>
+                tenth of a second or less, and it has since caught real bad values on both devices.
+                Whether the Fast Pair pop-up itself follows the corrected values is not verified yet.</p>
+              <p>For auto-connect, the helper re-applies the earbuds' LE Audio setting once after
+                each Bluetooth start, but only if LE Audio is already allowed for them and they are
+                not connected. It is the same call as the LE Audio switch in Settings, and Classic
+                audio is never touched. I tested it by hand in the broken and the normal state.</p>
             </div>
           </div>
         </article>
