@@ -679,7 +679,9 @@
               latest real levels the earbuds reported, within a fraction of a second. A native
               Android app starts the helper again after every restart, with no Linux Terminal
               involved. It also puts my Pixel Buds back on LE Audio's auto-connect list after each
-              Bluetooth start, so they keep connecting by themselves after a restart.</p>
+              Bluetooth start, so they keep connecting by themselves after a restart. It checks
+              itself after every start and every system update, and the app warns me if anything
+              it relies on stopped working.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -706,10 +708,11 @@
                 In an imitation test on both devices, the helper fixed the bad values in about a
                 tenth of a second or less, and it has since caught real bad values on both devices.
                 Whether the Fast Pair pop-up itself follows the corrected values is not verified yet.</p>
-              <p>For auto-connect, the helper re-applies the earbuds' LE Audio setting once after
-                each Bluetooth start, but only if LE Audio is already allowed for them and they are
-                not connected. It is the same call as the LE Audio switch in Settings, and Classic
-                audio is never touched. I tested it by hand in the broken and the normal state.</p>
+              <p>For auto-connect, the helper reads Bluetooth's own log once after each Bluetooth
+                start. Only if the earbuds are missing from the auto-connect list does it re-apply
+                their allowed LE Audio setting, the same call as the LE Audio switch in Settings,
+                and then it confirms the result. Classic audio is never touched. I tested it by hand
+                in the broken and the normal state and across a real restart.</p>
             </div>
           </div>
         </article>
