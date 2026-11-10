@@ -28,3 +28,6 @@
 [submodule "projects/homedepot-helper"]
 	path = projects/homedepot-helper
 	url = https://github.com/iamflying29-sketch/googlebook-homedepot-helper.git
+[submodule "projects/buds-battery-fix"]
+	path = projects/buds-battery-fix
+	url = https://github.com/iamflying29-sketch/googlebook-buds-battery-fix.git

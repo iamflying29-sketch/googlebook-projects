@@ -670,6 +670,42 @@
         </article>
 
         <article class="card">
+          <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-buds-battery-fix" target="_blank" rel="noopener">Buds Battery Fix</a></h3><span class="kind">helper · app</span></div>
+          <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
+          <div class="ps function"><span class="lab">What it does</span>
+            <p>This fix keeps the left and right battery levels of my Pixel Buds 2a showing on my
+              Googlebook and my Lenovo Tab P12. When Google's Fast Pair stores both earbuds as
+              "unknown" next to a real case level, a small helper on each device puts back the
+              latest real levels the earbuds reported, within a fraction of a second. A native
+              Android app starts the helper again after every restart, with no Linux Terminal
+              involved.</p>
+          </div>
+          <div class="split">
+            <div class="ps problem"><span class="lab">Problem</span>
+              <p>The Fast Pair pop-up and Google's Batteries widget sometimes showed only my charging
+                case, with no left or right earbud. I recorded everything Pixel Buds related on my
+                Googlebook for 11 days and found 198 snapshots in which the stored battery values
+                had a real level only for the case.</p>
+              <p>In 197 of them, Fast Pair had just stored a battery advertisement that marked both
+                earbuds as unknown and charging while the case had a real level. The earbuds kept
+                sending real levels before and after it, so the problem was one bad kind of report,
+                not empty batteries or a broken connection.</p>
+            </div>
+            <div class="ps solution"><span class="lab">Solution</span>
+              <p>The helper runs as the adb shell user, which may read, change and watch the stored
+                battery values. It acts only on that one bad combination and writes back the
+                earbuds' latest real reading, if that reading is less than 10 minutes old or the
+                earbuds stayed connected since. Every real report passes through untouched, so it
+                never makes up a number.</p>
+              <p>I traced Google's Batteries widget to these stored values through the Settings app.
+                In an imitation test on both devices, the helper fixed the bad values in about a
+                tenth of a second or less. Whether the Fast Pair pop-up itself follows the corrected
+                values is not verified yet.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
           <div class="top"><h3><a class="card-link" href="https://github.com/iamflying29-sketch/googlebook-waydroid" target="_blank" rel="noopener">Waydroid</a></h3><span class="kind">Linux VM · Android container</span></div>
           <p class="card-hint">Click anywhere on this card to open its code and instructions on GitHub.</p>
           <div class="ps function"><span class="lab">What it does</span>
