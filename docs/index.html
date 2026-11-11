@@ -425,7 +425,7 @@
               app on the Googlebook, so the earbuds' controls, settings and battery widget work
               without tapping Connect over and over. It is a small background app. It reconnects the
               earbuds' control link a few seconds after they connect, then checks the link about once
-              a minute for several minutes and warns me only if five of those checks fail in a
+              a minute for several minutes and warns me only if eight of those checks fail in a
               row. Every 15 minutes, it
               also sends the reconnect signal again while the earbuds are connected. A status window
               shows the link state and has a Reconnect now button.</p>
@@ -472,7 +472,12 @@
                 test it was back in ARM mode 1.1 seconds later. Version 2.4 came after the plugin got stuck
                 after days of running and stopped trying to connect. Now, when the earbuds play audio but the
                 plugin has had no control link for five minutes, Buds LE Link restarts the plugin by itself, at
-                most once every 30 minutes. In my test it was connected again 3 seconds later. Both fixes depend on how this exact version of Samsung's plugin behaves, so a
+                most once every 30 minutes. In my test it was connected again 3 seconds later. Version 2.5 came after Bluetooth's log showed that a
+                restart can take the Galaxy Buds off LE Audio's auto-connect list, the same way it did to my Pixel Buds,
+                which then stopped connecting by themselves. Now, a minute after every restart, Buds LE Link checks both earbuds and puts them back on
+                that list by itself, but only if they are off it. In my test both earbuds were back on the list from
+                one step, and I have not yet tested it with a real restart. The ARM repair and the plugin restart
+                depend on how this exact version of Samsung's plugin behaves, so a
                 Samsung update could undo them, and the app warns me if a different plugin version is installed.</p>
             </div>
           </div>
