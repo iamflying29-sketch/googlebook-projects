@@ -684,9 +684,12 @@
               latest real levels the earbuds reported, within a fraction of a second. A native
               Android app starts the helper again after every restart, with no Linux Terminal
               involved. It also puts my Pixel Buds back on LE Audio's auto-connect list after each
-              Bluetooth start, so they keep connecting by themselves after a restart. It checks
-              itself after every start and every system update, and the app warns me if anything
-              it relies on stopped working.</p>
+              Bluetooth start, so they keep connecting by themselves after a restart. It keeps
+              Google's Fast Pair pop-up showing left, right and case by making the earbuds report
+              in time, and on my Googlebook it closes the Pixel Buds app's idle Classic Bluetooth
+              connection while LE Audio plays, because that connection made the sound flange. It
+              checks itself after every start and every system update, and the app warns me if
+              anything it relies on stopped working.</p>
           </div>
           <div class="split">
             <div class="ps problem"><span class="lab">Problem</span>
@@ -702,6 +705,11 @@
                 log showed that Bluetooth's start for Android's system user took them off LE Audio's
                 auto-connect list, and my own user's step that puts them back ran 2 milliseconds
                 before they were loaded.</p>
+              <p>Google's Fast Pair pop-up does not read the stored values at all. It keeps its own
+                copy and drops the earbuds once they have not reported for 2 minutes. And on my
+                Googlebook, LE Audio sometimes sounded flanged, with the earbuds fading in and out,
+                while the Pixel Buds app kept reopening a Classic Bluetooth connection to them in the
+                background.</p>
             </div>
             <div class="ps solution"><span class="lab">Solution</span>
               <p>The helper runs as the adb shell user, which may read, change and watch the stored
@@ -711,8 +719,15 @@
                 never makes up a number.</p>
               <p>I traced Google's Batteries widget to these stored values through the Settings app.
                 In an imitation test on both devices, the helper fixed the bad values in about a
-                tenth of a second or less, and it has since caught real bad values on both devices.
-                Whether the Fast Pair pop-up itself follows the corrected values is not verified yet.</p>
+                tenth of a second or less, and it has since caught real bad values on both devices.</p>
+              <p>For the pop-up, the helper briefly opens the connection that Play services uses to
+                talk to the earbuds whenever their last report is 90 seconds old. Play services
+                reconnects within seconds, the earbuds send their real levels, and in my tests the
+                pop-up kept showing all three on both devices.</p>
+              <p>While LE Audio plays, the helper stops the Pixel Buds app with Android's regular stop
+                and closes only the idle Classic link. Android's stopped mark keeps the app from
+                reconnecting at once. It lasted 612 milliseconds in my test, and the app's jobs,
+                alarms and notifications stay. I have not heard the flanging since.</p>
               <p>For auto-connect, the helper reads Bluetooth's own log once after each Bluetooth
                 start. Only if the earbuds are missing from the auto-connect list does it re-apply
                 their allowed LE Audio setting, the same call as the LE Audio switch in Settings,
