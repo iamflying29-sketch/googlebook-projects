@@ -13,7 +13,8 @@
 # the app is open it checks the saved size every 30s and re-drags if it is
 # not phone-sized. New launches then open phone-sized directly.
 #
-# Started (and restarted if missing or outdated) by terminal/hd-keeper.
+# Started, and restarted when it is missing, frozen or outdated, by the Home Depot Helper app
+# (until 2026-11-16 by terminal/hd-keeper in the Linux Terminal).
 # Overridable through the environment:
 #   HD_PACKAGE   app to keep phone-sized         (default com.thehomedepot)
 #   HD_PHONE_DP  phone window width in dp        (default 448)
@@ -24,8 +25,8 @@ PHONE_DP=${HD_PHONE_DP:-448}
 LIMIT_DP=${HD_LIMIT_DP:-600}
 DIR=/data/local/tmp
 LOG=$DIR/hd-phone.log
-# Heartbeat: the time of the watcher's last loop, written every 30 s. The keeper restarts the
-# watcher when it goes stale, so a watcher that hangs never stays hung.
+# Heartbeat: the time of the watcher's last loop, written every 30 s. The Home Depot Helper app
+# restarts the watcher when it goes stale, so a watcher that hangs never stays hung.
 BEAT=$DIR/hd-phone.beat
 
 echo $$ > $DIR/hd-phone.pid
